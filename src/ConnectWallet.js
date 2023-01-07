@@ -35,6 +35,7 @@ function ConnectWallet() {
   const [isConnected, setIsConnected] = useState(false);
 
   const [imageUploaded, setImageUploaded] = useState('');
+  const [uriArrayUpload, setURIArrayUpload] = useState([]);
 
   // const [toAddress, setToAddress] = useState('');
   const [uri, setUri] = useState('');
@@ -55,6 +56,30 @@ function ConnectWallet() {
     };
     checkAvailableMetamask();
   }, []);
+
+  const uriArray = [];
+  const getMyTokens = async () => {
+    try {
+      let nftTx = await readContract.totalSupply();
+      const totalSupply = Web3.utils.hexToNumber(nftTx._hex);
+
+      for (let i = 0; i < totalSupply; i++) {
+        let owner = await readContract.ownerOf(i);
+        if (owner.toLowerCase() === accountAddress){
+          let uriToken = await readContract.tokenURI(i);
+          uriArray.push(uriToken);
+        }
+      }
+      setURIArrayUpload(uriArray);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  useEffect(() => {
+    getMyTokens();
+  }, [accountAddress]);
+  console.log(uriArrayUpload);
 
   const connectWallet = async () => {
     try {
@@ -115,16 +140,6 @@ function ConnectWallet() {
     }
   }
 
-  const getMyTokens = async () => {
-    try {
-      let nftTx = await readContract.totalSupply();
-      console.log(nftTx);
-
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
 
   return (
     <div>
@@ -132,29 +147,30 @@ function ConnectWallet() {
         {haveMetamask ? (
           <div>
             {isConnected ? (
-              <div className="marketplace">
+              <div>
+                <div className="marketplace">
+                  <div>
+                    <Link style={{textDecoration: 'none'}} target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} ><ListItem>Your address : {accountAddress}</ListItem></Link>
+                    <ListItem>Your balance : {accountBalance}</ListItem>
+                  </div>
                 
-                <div>
-                  <Link style={{textDecoration: 'none'}} target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} ><ListItem>Your address : {accountAddress}</ListItem></Link>
-                  <ListItem>Your balance : {accountBalance}</ListItem>
+                  <div>
+                    <h2>Mint your image</h2>
+                    <form onSubmit={uploadToIPFS}>
+                      <input id="file-upload" type="file" multiple accept="image/*" />
+                      <Button variant="contained" type="submit">Upload image</Button>
+                    </form>
+                    
+                    <Button variant="contained" onClick={safeMint}>
+                      Mint
+                    </Button>
+                  </div>
                 </div>
-              
+
                 <div>
-                  <h2>Mint your image</h2>
-                  <form onSubmit={uploadToIPFS}>
-                    <input id="file-upload" type="file" multiple accept="image/*" />
-                    <Button variant="contained" type="submit">Upload image</Button>
-                  </form>
-                  
-                  <Button variant="contained" onClick={safeMint}>
-                    Mint
-                  </Button>
-                </div>
-                
-                <div>
-                <Button variant="contained" onClick={getMyTokens}>
-                  My Tokens
-                  </Button>
+                  {uriArrayUpload.map((item) => (
+                    <img src={item} alt="imge" style={{ width: 250, height: 300 }}/>
+                  ))}
                 </div>
               </div>
             ) : (
