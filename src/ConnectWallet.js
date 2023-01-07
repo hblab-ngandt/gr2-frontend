@@ -1,26 +1,33 @@
 import { React, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import "./App.css";
-import { Button } from "@mui/material";
+import { Button, Link} from "@mui/material";
 import ListItem from "@material-ui/core/ListItem";
-import { Link } from "@mui/material";
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
 import { create } from "ipfs-http-client";
 import Web3 from "web3";
 
-
 import ImageToken from './ImageToken.json';
-// import Upload from "./Upload";
+import ImageMarketplace from './ImageMarketplace.json';
+
+const { 
+  REACT_APP_IPFS_PROJECT_ID, 
+  REACT_APP_IPFS_PROJECT_KEY,
+  REACT_APP_NFT_ADDRESS,
+  REACT_APP_MARKETPLACE_ADDRESS
+ } = process.env
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-const nftAddress = '0x2AbFFce583123258D9e39cfdd52EAdf3f86432e9';
+const nftAddress = REACT_APP_NFT_ADDRESS;
+const marketplaceAddress = REACT_APP_MARKETPLACE_ADDRESS;
 
 const signer = provider.getSigner();
 
 const nftContract = new ethers.Contract(nftAddress, ImageToken.abi, signer);
+const marketplaceContract = new ethers.Contract(marketplaceAddress, ImageMarketplace.abi, signer);
 const readContract = new ethers.Contract(nftAddress, ImageToken.abi, provider);
-
-const { REACT_APP_IPFS_PROJECT_ID, REACT_APP_IPFS_PROJECT_KEY } = process.env
 
 const projectId = REACT_APP_IPFS_PROJECT_ID;
 const projectKey = REACT_APP_IPFS_PROJECT_KEY;
@@ -36,6 +43,8 @@ function ConnectWallet() {
 
   const [imageUploaded, setImageUploaded] = useState('');
   const [uriArrayUpload, setURIArrayUpload] = useState([]);
+
+  const arrayToken = [];
 
   // const [toAddress, setToAddress] = useState('');
   const [uri, setUri] = useState('');
@@ -67,10 +76,14 @@ function ConnectWallet() {
         let owner = await readContract.ownerOf(i);
         if (owner.toLowerCase() === accountAddress){
           let uriToken = await readContract.tokenURI(i);
-          uriArray.push(uriToken);
+          // uriArray.push(uriToken);
+          arrayToken.push({
+            tokenId: i,
+            tokenURI: uriToken,
+          });
         }
       }
-      setURIArrayUpload(uriArray);
+      setURIArrayUpload(arrayToken);
     } catch (err) {
       console.log(err);
     }
@@ -79,7 +92,6 @@ function ConnectWallet() {
   useEffect(() => {
     getMyTokens();
   }, [accountAddress]);
-  console.log(uriArrayUpload);
 
   const connectWallet = async () => {
     try {
@@ -134,12 +146,29 @@ function ConnectWallet() {
       console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
       const tokenId = Web3.utils.hexToNumber(tx.logs[0].topics[3]);
       console.log(tokenId);
+
+
+      let approveTx = await nftContract.approve(marketplaceAddress, tokenId);
+      console.log(`See transaction: https://testnet.bscscan.com/tx/${approveTx.transactionHash}`);
+      
       event.target.value = null;
     } catch (err) {
       console.log(err);
     }
   }
 
+  const listNft = async (tokenId) => {
+    try {
+      let marketTx = await marketplaceContract.listImageNFT(nftAddress, tokenId);
+      console.log(marketTx);
+            
+      let tx = await marketTx.wait();
+      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
+      console.log(tx);
+    } catch (err) {
+      console.log(err);  
+    }
+  }
 
   return (
     <div>
@@ -148,30 +177,58 @@ function ConnectWallet() {
           <div>
             {isConnected ? (
               <div>
-                <div className="marketplace">
+                <div className="">
                   <div>
                     <Link style={{textDecoration: 'none'}} target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} ><ListItem>Your address : {accountAddress}</ListItem></Link>
                     <ListItem>Your balance : {accountBalance}</ListItem>
+
+                    <ListItem><h3>Mint your image</h3></ListItem>
+
+                    <ListItem>
+                      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
+                          <ListItem>
+                            <form onSubmit={uploadToIPFS}>
+                                <ListItem>
+                                  <input id="file-upload" type="file" multiple accept="image/*" />
+                                </ListItem>
+
+                                <ListItem>
+                                  <Button variant="contained" type="submit">Upload image</Button>
+                                </ListItem>
+
+                                <ListItem>
+                                  <Button variant="contained" onClick={safeMint}>
+                                    Mint
+                                  </Button>
+
+                                </ListItem>
+                            </form>
+                        </ListItem>
+                        
+                        <ListItem><h3>MyNFT</h3></ListItem>
+                        {uriArrayUpload.map((item) => (
+                          <Grid item xs={3} key={item.tokenId} >
+                            <ListItem>
+                            <img src={item.tokenURI} alt="imge" style={{ width: 150, height: 250 }}/>
+                            </ListItem>
+
+                            <ListItem>
+                              <TextField id="outlined-basic" label="Price" variant="outlined" style={{ display: "inline" }}/>
+                            </ListItem>
+
+                            <ListItem>
+                              <Button variant="contained" style={{ display: "inline" }} onClick={() => listNft(item.tokenId)} >List</Button>
+                            </ListItem>
+                          </Grid>
+                        ))}
+
+                      </Grid>
+                    </ListItem>
+
                   </div>
                 
-                  <div>
-                    <h2>Mint your image</h2>
-                    <form onSubmit={uploadToIPFS}>
-                      <input id="file-upload" type="file" multiple accept="image/*" />
-                      <Button variant="contained" type="submit">Upload image</Button>
-                    </form>
-                    
-                    <Button variant="contained" onClick={safeMint}>
-                      Mint
-                    </Button>
-                  </div>
                 </div>
 
-                <div>
-                  {uriArrayUpload.map((item) => (
-                    <img src={item} alt="imge" style={{ width: 250, height: 300 }}/>
-                  ))}
-                </div>
               </div>
             ) : (
               <Button variant="contained" onClick={connectWallet}>
