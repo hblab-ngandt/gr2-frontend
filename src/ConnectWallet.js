@@ -1,11 +1,14 @@
 import { React, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import "./App.css";
-import { Button, Link} from "@mui/material";
+import { Button } from "@mui/material";
 import ListItem from "@material-ui/core/ListItem";
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import { create } from "ipfs-http-client";
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 import Web3 from "web3";
 
 import ImageToken from './ImageToken.json';
@@ -37,17 +40,21 @@ const authorization = "Basic " + btoa(projectId + ":" + projectKey);
 function ConnectWallet() {
   const [haveMetamask, sethaveMetamask] = useState(true);
   const [accountAddress, setAccountAddress] = useState();
-  const [accountBalance, setAccountBalance] = useState();
+  // const [accountBalance, setAccountBalance] = useState();
 
   const [isConnected, setIsConnected] = useState(false);
 
   const [imageUploaded, setImageUploaded] = useState('');
   const [uriArrayUpload, setURIArrayUpload] = useState([]);
 
+  const [arrayListNFT, setArrayListNFT] = useState([]);
+
   const arrayToken = [];
+  const arrayNftList = [];
 
   // const [toAddress, setToAddress] = useState('');
   const [uri, setUri] = useState('');
+  // const [tokenId, setTokenId] = useState('');
   
   const ipfs = create({
     url: "https://ipfs.infura.io:5001/api/v0",
@@ -66,7 +73,6 @@ function ConnectWallet() {
     checkAvailableMetamask();
   }, []);
 
-  const uriArray = [];
   const getMyTokens = async () => {
     try {
       let nftTx = await readContract.totalSupply();
@@ -92,6 +98,7 @@ function ConnectWallet() {
   useEffect(() => {
     getMyTokens();
   }, [accountAddress]);
+  console.log(uriArrayUpload);
 
   const connectWallet = async () => {
     try {
@@ -103,7 +110,7 @@ function ConnectWallet() {
       let balance = ethers.utils.formatEther(balanceAcc);
 
       setAccountAddress(accounts[0]);
-      setAccountBalance(balance);
+      // setAccountBalance(balance);
       setIsConnected(true);
     } catch (err) {
       setIsConnected(false);
@@ -140,16 +147,16 @@ function ConnectWallet() {
   const safeMint = async (event) => {
     try {
       let nftTx = await nftContract.safeMint(accountAddress, uri);
-      console.log('Mining ... ',nftTx.hash);
+      console.log('Minting ... ',nftTx.hash);
 
       let tx = await nftTx.wait();
-      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
+      console.log(`Mintes successfully, see transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
       const tokenId = Web3.utils.hexToNumber(tx.logs[0].topics[3]);
       console.log(tokenId);
 
 
       let approveTx = await nftContract.approve(marketplaceAddress, tokenId);
-      console.log(`See transaction: https://testnet.bscscan.com/tx/${approveTx.transactionHash}`);
+      console.log(`Approved successfully, see transaction: https://testnet.bscscan.com/tx/${approveTx.transactionHash}`);
       
       event.target.value = null;
     } catch (err) {
@@ -157,13 +164,12 @@ function ConnectWallet() {
     }
   }
 
-  const listNft = async (tokenId) => {
+  const listNft = async (event) => {
     try {
-      let marketTx = await marketplaceContract.listImageNFT(nftAddress, tokenId);
-      console.log(marketTx);
+      let marketTx = await marketplaceContract.listImageNFT(nftAddress, arrayListNFT.tokenId, arrayListNFT.price);
             
       let tx = await marketTx.wait();
-      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
+      console.log(`Listed successfully , see transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
       console.log(tx);
     } catch (err) {
       console.log(err);  
@@ -177,32 +183,32 @@ function ConnectWallet() {
           <div>
             {isConnected ? (
               <div>
-                <div className="">
-                  <div>
-                    <Link style={{textDecoration: 'none'}} target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} ><ListItem>Your address : {accountAddress}</ListItem></Link>
-                    <ListItem>Your balance : {accountBalance}</ListItem>
+                {/* <Link style={{textDecoration: 'none'}} target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} ><ListItem>Your address : {accountAddress}</ListItem></Link> */}
+                <AppBar position="static">
+                  <Toolbar>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                      Account Address
+                    </Typography>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                      {accountAddress}
+                    </Typography>
+                    {/* <Link target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} >{accountAddress}</Link> */}
+                  </Toolbar>
+                </AppBar>
+                <ListItem><h3>Mint your image</h3></ListItem>
 
-                    <ListItem><h3>Mint your image</h3></ListItem>
-
-                    <ListItem>
+                <ListItem>
                       <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
-                          <ListItem>
-                            <form onSubmit={uploadToIPFS}>
-                                <ListItem>
-                                  <input id="file-upload" type="file" multiple accept="image/*" />
-                                </ListItem>
+                        <ListItem>
+                          <form onSubmit={uploadToIPFS}>
+                              <input id="file-upload" type="file" multiple accept="image/*" />
 
-                                <ListItem>
-                                  <Button variant="contained" type="submit">Upload image</Button>
-                                </ListItem>
+                              <Button variant="contained" type="submit">Upload image</Button>
 
-                                <ListItem>
-                                  <Button variant="contained" onClick={safeMint}>
-                                    Mint
-                                  </Button>
-
-                                </ListItem>
-                            </form>
+                              <Button variant="contained" onClick={safeMint}>
+                                Mint
+                              </Button>
+                          </form>
                         </ListItem>
                         
                         <ListItem><h3>MyNFT</h3></ListItem>
@@ -213,22 +219,17 @@ function ConnectWallet() {
                             </ListItem>
 
                             <ListItem>
-                              <TextField id="outlined-basic" label="Price" variant="outlined" style={{ display: "inline" }}/>
+                              <TextField id="outlined-basic" label="Price" variant="outlined" style={{ display: "inline" }} 
+                                onChange={(e) => setArrayListNFT({tokenId: item.tokenId, price: e.target.value})} />
                             </ListItem>
-
                             <ListItem>
-                              <Button variant="contained" style={{ display: "inline" }} onClick={() => listNft(item.tokenId)} >List</Button>
+                              <Button variant="contained" style={{ display: "inline" }} onClick={listNft} >List</Button>
                             </ListItem>
                           </Grid>
                         ))}
 
                       </Grid>
-                    </ListItem>
-
-                  </div>
-                
-                </div>
-
+                </ListItem>
               </div>
             ) : (
               <Button variant="contained" onClick={connectWallet}>
