@@ -40,7 +40,6 @@ const authorization = "Basic " + btoa(projectId + ":" + projectKey);
 function ConnectWallet() {
   const [haveMetamask, sethaveMetamask] = useState(true);
   const [accountAddress, setAccountAddress] = useState();
-  // const [accountBalance, setAccountBalance] = useState();
 
   const [isConnected, setIsConnected] = useState(false);
 
@@ -48,14 +47,10 @@ function ConnectWallet() {
   const [uriArrayUpload, setURIArrayUpload] = useState([]);
 
   const [arrayListNFT, setArrayListNFT] = useState([]);
+  const [uri, setUri] = useState('');
 
   const arrayToken = [];
-  const arrayNftList = [];
 
-  // const [toAddress, setToAddress] = useState('');
-  const [uri, setUri] = useState('');
-  // const [tokenId, setTokenId] = useState('');
-  
   const ipfs = create({
     url: "https://ipfs.infura.io:5001/api/v0",
     headers: {
@@ -82,7 +77,6 @@ function ConnectWallet() {
         let owner = await readContract.ownerOf(i);
         if (owner.toLowerCase() === accountAddress){
           let uriToken = await readContract.tokenURI(i);
-          // uriArray.push(uriToken);
           arrayToken.push({
             tokenId: i,
             tokenURI: uriToken,
@@ -95,9 +89,9 @@ function ConnectWallet() {
     }
   }
 
-  useEffect(() => {
+  useEffect( () => {
     getMyTokens();
-  }, [accountAddress]);
+  }, []);
   console.log(uriArrayUpload);
 
   const connectWallet = async () => {
@@ -106,8 +100,8 @@ function ConnectWallet() {
         sethaveMetamask(false);
       }
       const accounts = await provider.send("eth_requestAccounts", []);
-      let balanceAcc = await provider.getBalance(accounts[0]);
-      let balance = ethers.utils.formatEther(balanceAcc);
+      // let balanceAcc = await provider.getBalance(accounts[0]);
+      // let balance = ethers.utils.formatEther(balanceAcc);
 
       setAccountAddress(accounts[0]);
       // setAccountBalance(balance);
@@ -171,6 +165,28 @@ function ConnectWallet() {
       let tx = await marketTx.wait();
       console.log(`Listed successfully , see transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
       console.log(tx);
+
+      const data = ethers.utils.defaultAbiCoder.decode(
+        ['uint256', 'address', 'address'],
+        tx.logs[1].data
+      );
+      const price = Web3.utils.hexToNumber(data[0]);
+      // console.log('Price : ', price);
+      // console.log('Seller : ', data[1]);
+      // console.log('Owner : ', data[2]);
+      
+      const marketId = Web3.utils.hexToNumber(tx.logs[1].topics[1]);
+      const tokenId = Web3.utils.hexToNumber(tx.logs[1].topics[2]);
+      // console.log('MarketId: ', marketId);
+      // console.log('TokenId: ', tokenId);
+
+      const marketItem = {
+        marketId: marketId,
+        tokenId: tokenId,
+        price: price,
+        seller: data[1],
+        owner: data[2]
+      }
     } catch (err) {
       console.log(err);  
     }
@@ -195,7 +211,7 @@ function ConnectWallet() {
                     {/* <Link target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} >{accountAddress}</Link> */}
                   </Toolbar>
                 </AppBar>
-                <ListItem><h3>Mint your image</h3></ListItem>
+                <ListItem>Mint your image</ListItem>
 
                 <ListItem>
                       <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
@@ -211,7 +227,7 @@ function ConnectWallet() {
                           </form>
                         </ListItem>
                         
-                        <ListItem><h3>MyNFT</h3></ListItem>
+                        <ListItem>My NFT</ListItem>
                         {uriArrayUpload.map((item) => (
                           <Grid item xs={3} key={item.tokenId} >
                             <ListItem>
@@ -227,6 +243,8 @@ function ConnectWallet() {
                             </ListItem>
                           </Grid>
                         ))}
+
+                        <ListItem>Marketplace</ListItem>
 
                       </Grid>
                 </ListItem>
