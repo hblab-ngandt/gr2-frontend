@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { ethers } from "ethers";
+import { ethers, utils } from "ethers";
 import "./App.css";
 import { Button, Box, Tab, Tabs, Typography } from "@mui/material";
 import ListItem from "@material-ui/core/ListItem";
@@ -118,10 +118,11 @@ function ConnectWallet() {
         sethaveMetamask(false);
       }
       const accounts = await provider.send("eth_requestAccounts", []);
+      const account = utils.getAddress(accounts[0]);
       // let balanceAcc = await provider.getBalance(accounts[0]);
       // let balance = ethers.utils.formatEther(balanceAcc);
 
-      setAccountAddress(accounts[0]);
+      setAccountAddress(account);
       // setAccountBalance(balance);
       setIsConnected(true);
     } catch (err) {
@@ -174,7 +175,7 @@ function ConnectWallet() {
       await addDoc(collection(db, "nfts"), data);
 
       event.target.value = null;
-      window.location.reload();
+      // window.location.reload();
     } catch (err) {
       console.log(err);
     }
