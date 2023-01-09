@@ -73,7 +73,7 @@ function ConnectWallet() {
   };
 
   const getMyTokens = async () => {
-    console.log('@@')
+    console.log('@@dvsdvd')
     try {
       let nftTx = await readContract.totalSupply();
       const totalSupply = Web3.utils.hexToNumber(nftTx._hex);
@@ -194,8 +194,7 @@ function ConnectWallet() {
       console.log(err);  
     }
   }
-  dbLocal = JSON.parse(localStorage.getItem("MarketItems"));
-  console.log(dbLocal);
+
   const buyNft = async () => {
     try {
       let buyTx = await marketplaceContract.buyImageNFT();
@@ -219,7 +218,7 @@ function ConnectWallet() {
 
       let listMarketItems = JSON.parse(localStorage.getItem("MarketItems"));
       for (let i = 0; i < listMarketItems.length; i++) {
-        if (listMarketItems[i] === marketId) {
+        if (listMarketItems[i].marketId === marketId) {
           listMarketItems.splice(i, 1);
         }
       }
@@ -231,6 +230,9 @@ function ConnectWallet() {
       console.log(err);
     }
   }
+
+  dbLocal = JSON.parse(localStorage.getItem("MarketItems"));
+  console.log(dbLocal);
 
   return (
     <div>
@@ -316,7 +318,7 @@ function ConnectWallet() {
 
                               { accountAddress === item.seller.toLowerCase() ? (
                               <ListItem>
-                                <Button variant="contained" style={{ display: "inline" }} onClick={cancelNft} >Cancel</Button>
+                                <Button variant="contained" style={{ display: "inline" }} onClick={() => cancelNft(item.marketId)} >Cancel</Button>
                               </ListItem>
                               ) : (
                               <ListItem>
