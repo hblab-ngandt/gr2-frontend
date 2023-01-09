@@ -43,13 +43,13 @@ function ConnectWallet() {
 
   const [isConnected, setIsConnected] = useState(false);
 
-  const [imageUploaded, setImageUploaded] = useState('');
   const [uriArrayUpload, setURIArrayUpload] = useState([]);
 
   const [arrayListNFT, setArrayListNFT] = useState([]);
   const [uri, setUri] = useState('');
 
   const arrayToken = [];
+  let dbLocal = [];
 
   const ipfs = create({
     url: "https://ipfs.infura.io:5001/api/v0",
@@ -73,7 +73,7 @@ function ConnectWallet() {
   };
 
   const getMyTokens = async () => {
-    console.log('aaa')
+    console.log('@@')
     try {
       let nftTx = await readContract.totalSupply();
       const totalSupply = Web3.utils.hexToNumber(nftTx._hex);
@@ -130,13 +130,6 @@ function ConnectWallet() {
     // upload files
     const result = await ipfs.add(file);
 
-    setImageUploaded([
-      ...imageUploaded,
-      {
-        cid: result.cid,
-        path: result.path,
-      },
-    ]);
     const url = "https://ngandt.infura-ipfs.io/ipfs/" + result.path;
     console.log(url);
     setUri(url);
@@ -176,24 +169,17 @@ function ConnectWallet() {
         tx.logs[1].data
       );
       const price = Web3.utils.hexToNumber(data[0]);
-      // console.log('Price : ', price);
-      // console.log('Seller : ', data[1]);
-      // console.log('Owner : ', data[2]);
-      
       const marketId = Web3.utils.hexToNumber(tx.logs[1].topics[1]);
       const tokenId = Web3.utils.hexToNumber(tx.logs[1].topics[2]);
-      // console.log('MarketId: ', marketId);
-      // console.log('TokenId: ', tokenId);
 
       const marketItem = {
         marketId: marketId,
         tokenId: tokenId,
+        tokenUri : arrayListNFT.uri,
         price: price,
         seller: data[1],
         owner: data[2]
       }
-      // push data into local storage
-      // get items from localStorage, or declare new one if not exist
       let listMarketItems = localStorage.getItem("MarketItems");
       if (listMarketItems) {
         listMarketItems = JSON.parse(listMarketItems);
@@ -208,10 +194,43 @@ function ConnectWallet() {
       console.log(err);  
     }
   }
+  dbLocal = JSON.parse(localStorage.getItem("MarketItems"));
+  console.log(dbLocal);
+  const buyNft = async () => {
+    try {
+      let buyTx = await marketplaceContract.buyImageNFT();
+      
+      let tx = await buyTx.wait();
+      console.log(`Buyed successfully, see transaction: https://testnet.bscscan/tx/${tx.transactionHash}`);
+      console.log(tx);
 
-  // const buyNft = async () => {
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
-  // }
+  const cancelNft = async (marketId) => {
+    try {
+      let cancelTx = await marketplaceContract.cancelListImageNFT(marketId);
+
+      let tx = await cancelTx.wait();
+      console.log(`Cancelled successfully, see transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
+      console.log(tx);
+
+      let listMarketItems = JSON.parse(localStorage.getItem("MarketItems"));
+      for (let i = 0; i < listMarketItems.length; i++) {
+        if (listMarketItems[i] === marketId) {
+          listMarketItems.splice(i, 1);
+        }
+      }
+
+      listMarketItems = JSON.stringify(listMarketItems);
+      localStorage.setItem("MarketItems", listMarketItems);
+
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   return (
     <div>
@@ -220,16 +239,16 @@ function ConnectWallet() {
           <div>
             {isConnected ? (
               <div>
-                {/* <Link style={{textDecoration: 'none'}} target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} ><ListItem>Your address : {accountAddress}</ListItem></Link> */}
                 <AppBar position="static">
                   <Toolbar>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                       Account Address
                     </Typography>
+                    <a style={ {textDecoration: 'none', color: "white"} } target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} rel="noreferrer" >
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                       {accountAddress}
                     </Typography>
-                    {/* <Link target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} >{accountAddress}</Link> */}
+                    </a>
                   </Toolbar>
                 </AppBar>
 
@@ -244,39 +263,75 @@ function ConnectWallet() {
                     <Box sx={{ padding: 2 }}>
                       {tabIndex === 0 && (
                         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
-                        <ListItem>Create your NFT</ListItem>
-                        <ListItem>
-                          <form onSubmit={uploadToIPFS}>
-                              <input id="file-upload" type="file" multiple accept="image/*" />
+                          <ListItem>Create your NFT</ListItem>
+                          <ListItem>
+                            <form onSubmit={uploadToIPFS}>
+                                <input id="file-upload" type="file" multiple accept="image/*" />
 
-                              <Button variant="contained" type="submit">Upload image</Button>
+                                <Button variant="contained" type="submit">Upload image</Button>
 
-                              <Button variant="contained" onClick={safeMint}>
-                                Mint
-                              </Button>
-                          </form>
-                        </ListItem>
-                        
-                        <ListItem>My NFT</ListItem>
-                        {uriArrayUpload.map((item) => (
-                          <Grid item xs={3} key={item.tokenId} >
-                            <ListItem>
-                            <img src={item.tokenURI} alt="imge" style={{ width: 150, height: 250 }}/>
-                            </ListItem>
+                                <Button variant="contained" onClick={safeMint}>
+                                  Mint
+                                </Button>
+                            </form>
+                          </ListItem>
+                          
+                          <ListItem>My NFT</ListItem>
+                          {uriArrayUpload.map((item) => (
+                            <Grid item xs={3} key={item.tokenId} >
+                              <ListItem>
+                              <img src={item.tokenURI} alt="imge" style={{ width: 150, height: 250 }}/>
+                              </ListItem>
 
-                            <ListItem>
-                              <TextField id="outlined-basic" label="Price" variant="outlined" style={{ display: "inline" }} 
-                                onChange={(e) => setArrayListNFT({tokenId: item.tokenId, price: e.target.value})} />
-                            </ListItem>
-                            <ListItem>
-                              <Button variant="contained" style={{ display: "inline" }} onClick={listNft} >List</Button>
-                            </ListItem>
-                          </Grid>
-                        ))}
+                              <ListItem>
+                                <TextField id="outlined-basic" label="Price" variant="outlined" style={{ display: "inline" }} 
+                                  onChange={(e) => 
+                                  setArrayListNFT({tokenId: item.tokenId, price: e.target.value, uri: item.tokenURI})} />
+                              </ListItem>
+                              <ListItem>
+                                <Button variant="contained" style={{ display: "inline" }} onClick={listNft} >List</Button>
+                              </ListItem>
+                            </Grid>
+                          ))}
                         </Grid>
                       )}
                       {tabIndex === 1 && (
-                        <ListItem>Marketplace</ListItem>
+                        <Grid container rowSpacing={1} columnSpacing={{ xs: 1 , sm: 1, md: 1 }}>
+                          <ListItem>Marketplace</ListItem>
+                          { dbLocal !== null ? (
+                          <>
+                          {dbLocal.map((item) => (
+                            <Grid item xs={3} key={item.tokenId} >
+                              <ListItem>
+                              <img src={item.tokenUri} alt="imge" style={{ width: 150, height: 250, paddingRight: 60 }}/>
+                              </ListItem>
+
+                              { accountAddress === item.seller.toLowerCase() ? (
+                                <ListItem>Seller : You</ListItem>
+                              ) : (
+                              <ListItem>Seller : {item.seller}</ListItem>
+                              )}
+                              <ListItem>Owner : Marketplace</ListItem>
+                              <ListItem>Price : {item.price}</ListItem>
+
+                              { accountAddress === item.seller.toLowerCase() ? (
+                              <ListItem>
+                                <Button variant="contained" style={{ display: "inline" }} onClick={cancelNft} >Cancel</Button>
+                              </ListItem>
+                              ) : (
+                              <ListItem>
+                                <Button variant="contained" style={{ display: "inline" }} onClick={buyNft} >Buy</Button>
+                              </ListItem>
+                              )}
+                            </Grid>
+                          ))}
+                          </>
+                          ) : (
+                          <>
+                          <span> Marketplace not available </span>
+                          </>
+                          )}
+                        </Grid>
                       )}
                     </Box>
                   </Box>
