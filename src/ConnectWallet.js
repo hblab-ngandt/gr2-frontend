@@ -69,6 +69,7 @@ function ConnectWallet() {
   }, []);
 
   const getMyTokens = async () => {
+    console.log('aaa')
     try {
       let nftTx = await readContract.totalSupply();
       const totalSupply = Web3.utils.hexToNumber(nftTx._hex);
@@ -187,10 +188,26 @@ function ConnectWallet() {
         seller: data[1],
         owner: data[2]
       }
+      // push data into local storage
+      // get items from localStorage, or declare new one if not exist
+      let listMarketItems = localStorage.getItem("MarketItems");
+      if (listMarketItems) {
+        listMarketItems = JSON.parse(listMarketItems);
+      } else {
+        listMarketItems = [];
+      }
+      // declare and add the new item
+      listMarketItems.push(marketItem);
+      localStorage.setItem("MarketItems", JSON.stringify(listMarketItems));
+
     } catch (err) {
       console.log(err);  
     }
   }
+
+  // const buyNft = async () => {
+
+  // }
 
   return (
     <div>
