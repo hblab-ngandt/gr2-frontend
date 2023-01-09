@@ -15,6 +15,8 @@ import {
   doc,
   deleteDoc,
   getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 
 import ImageToken from "./ImageToken.json";
@@ -35,19 +37,20 @@ const marketplaceAddress = REACT_APP_MARKETPLACE_ADDRESS;
 
 const signer = provider.getSigner();
 
-const nftContract = new ethers.Contract(nftAddress, ImageToken.abi, signer);
+const nftContract = new ethers.Contract(
+  nftAddress,
+  ImageToken.abi,
+  signer);
+
 const marketplaceContract = new ethers.Contract(
   marketplaceAddress,
   ImageMarketplace.abi,
   signer
 );
-const readContract = new ethers.Contract(nftAddress, ImageToken.abi, provider);
 
 const projectId = REACT_APP_IPFS_PROJECT_ID;
 const projectKey = REACT_APP_IPFS_PROJECT_KEY;
 const authorization = "Basic " + btoa(projectId + ":" + projectKey);
-
-// const dbRef = collection(db, "marketplaces")
 
 function ConnectWallet() {
   const [haveMetamask, sethaveMetamask] = useState(true);
@@ -56,12 +59,8 @@ function ConnectWallet() {
 
   const [isConnected, setIsConnected] = useState(false);
 
-  const [uriArrayUpload, setURIArrayUpload] = useState([]);
-
   const [arrayListNFT, setArrayListNFT] = useState([]);
   const [uri, setUri] = useState("");
-
-  const arrayToken = [];
 
   const ipfs = create({
     url: "https://ipfs.infura.io:5001/api/v0",
@@ -84,28 +83,9 @@ function ConnectWallet() {
     setTabIndex(newTabIndex);
   };
 
-  const getMyTokens = async () => {
-    try {
-      let nftTx = await readContract.totalSupply();
-      const totalSupply = Web3.utils.hexToNumber(nftTx._hex);
-
-      for (let i = 0; i < totalSupply; i++) {
-        let owner = await readContract.ownerOf(i);
-        if (owner.toLowerCase() === accountAddress) {
-          let uriToken = await readContract.tokenURI(i);
-          arrayToken.push({
-            tokenId: i,
-            tokenURI: uriToken,
-          });
-        }
-      }
-      setURIArrayUpload(arrayToken);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
+  const [marketplaces, setMarketplaces] = useState([]);
   const [nfts, setNfts] = useState([]);
+
   const fetchData = async () => {
     try {
       const MPRef = collection(db, "marketplaces");
@@ -114,7 +94,15 @@ function ConnectWallet() {
         ...doc.data(), // destructure
         id: doc.id,
       }));
-      setNfts(documents);
+      setMarketplaces(documents);
+
+      const NFTRef = collection(db, "nfts");
+      const docsSnapNft = await getDocs(NFTRef);
+      const documentsNft = docsSnapNft.docs.map((doc) => ({
+        ...doc.data(), // destructure 
+        id: doc.id,
+      }));
+      setNfts(documentsNft);
     } catch (err) {
       console.log(err);
     }
@@ -122,10 +110,6 @@ function ConnectWallet() {
 
   useEffect(() => {
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    getMyTokens();
   }, []);
 
   const connectWallet = async () => {
@@ -168,7 +152,6 @@ function ConnectWallet() {
   const safeMint = async (event) => {
     try {
       let nftTx = await nftContract.safeMint(accountAddress, uri);
-      console.log("Minting ... ", nftTx.hash);
 
       let tx = await nftTx.wait();
       console.log(
@@ -179,19 +162,19 @@ function ConnectWallet() {
 
       let approveTx = await nftContract.approve(marketplaceAddress, tokenId);
       console.log(
-        `Approved successfully, see transaction: https://testnet.bscscan.com/tx/${approveTx.transactionHash}`
+        `Approved successfully, see transaction: https://testnet.bscscan.com/tx/${approveTx.hash}`
       );
 
       const data = {
-        owner: accountAddress,
+        address: accountAddress,
         tokenId: tokenId,
         tokenURI: uri,
       };
 
-      const newDoc = await addDoc(collection(db, "nfts"), data);
-      console.log("new document mint id: ", newDoc.id);
+      await addDoc(collection(db, "nfts"), data);
 
       event.target.value = null;
+      window.location.reload();
     } catch (err) {
       console.log(err);
     }
@@ -209,7 +192,6 @@ function ConnectWallet() {
       console.log(
         `Listed successfully , see transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`
       );
-      console.log(tx);
 
       const data = ethers.utils.defaultAbiCoder.decode(
         ["uint256", "address", "address"],
@@ -227,8 +209,22 @@ function ConnectWallet() {
         seller: data[1],
         owner: data[2],
       };
+
       // add to firestore
       const newDoc = await addDoc(collection(db, "marketplaces"), marketItem);
+      console.log("new document list id: ", newDoc.id);
+
+      const q = query(collection(db, "nfts"), where("tokenId", "==", tokenId));
+      const querySnapshot = await getDocs(q);
+      let docId = querySnapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}))
+      const docRef = doc(db, "nfts", docId[0].id);
+      deleteDoc(docRef)
+        .then(() => {
+          console.log("Deleted your nft successfully")
+        })
+        .catch((err) => console.log(err));
+      
+      window.location.reload();
     } catch (err) {
       console.log(err);
     }
@@ -256,23 +252,30 @@ function ConnectWallet() {
       console.log(
         `Cancelled successfully, see transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`
       );
-      console.log(tx);
 
       if (tx.transactionHash) {
-        const newNfts = nfts.filter(ele => ele.id !== item.id)
-        setNfts(newNfts);
+        const dataNft = {
+          address: item.seller,
+          tokenId: item.tokenId,
+          tokenUri: item.tokenUri,
+        }
+
+        await addDoc(collection(db, "nfts"), dataNft);
+
+        const newNfts = marketplaces.filter(ele => ele.id !== item.id)
+        setMarketplaces(newNfts);
         const docRef = doc(db, "marketplaces", item.id);
         deleteDoc(docRef)
           .then(() => {
             console.log("Deleted Successfully")
           })
           .catch((err) => console.log(err));
+        
       } else {
         console.log(
           "Transaction hash not found, transaction cancelled"
         );
       }
-      
     } catch (err) {
       console.log(err);
     }
@@ -347,7 +350,7 @@ function ConnectWallet() {
                           </ListItem>
 
                           <ListItem>My NFT</ListItem>
-                          {uriArrayUpload.map((item) => (
+                          {nfts.map((item) => (
                             <Grid item xs={3} key={item.tokenId}>
                               <ListItem>
                                 <img
@@ -393,9 +396,9 @@ function ConnectWallet() {
                             columnSpacing={{ xs: 1, sm: 1, md: 1 }}
                           >
                             <ListItem>Marketplace</ListItem>
-                            {nfts.length > 0 ? (
+                            {marketplaces.length > 0 ? (
                               <>
-                                {nfts.map((item) => (
+                                {marketplaces.map((item) => (
                                   <Grid item xs={3} key={item.tokenId}>
                                     <ListItem>
                                       <img
