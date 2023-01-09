@@ -9,9 +9,11 @@ import { create } from "ipfs-http-client";
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Web3 from "web3";
+import { collection, addDoc } from "firebase/firestore";
 
 import ImageToken from './ImageToken.json';
 import ImageMarketplace from './ImageMarketplace.json';
+import { db } from "./Firebase";
 
 const { 
   REACT_APP_IPFS_PROJECT_ID, 
@@ -35,6 +37,7 @@ const projectId = REACT_APP_IPFS_PROJECT_ID;
 const projectKey = REACT_APP_IPFS_PROJECT_KEY;
 const authorization = "Basic " + btoa(projectId + ":" + projectKey);
 
+// const dbRef = collection(db, "marketplaces")
 
 function ConnectWallet() {
   const [haveMetamask, sethaveMetamask] = useState(true);
@@ -73,7 +76,7 @@ function ConnectWallet() {
   };
 
   const getMyTokens = async () => {
-    console.log('@@dvsdvd')
+    console.log('@@11')
     try {
       let nftTx = await readContract.totalSupply();
       const totalSupply = Web3.utils.hexToNumber(nftTx._hex);
@@ -180,6 +183,10 @@ function ConnectWallet() {
         seller: data[1],
         owner: data[2]
       }
+      // add to firestore
+      const newDoc = await addDoc(collection(db, "marketplaces"), marketItem);
+      console.log('new document id: ',newDoc.id);
+
       let listMarketItems = localStorage.getItem("MarketItems");
       if (listMarketItems) {
         listMarketItems = JSON.parse(listMarketItems);
