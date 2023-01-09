@@ -1,14 +1,13 @@
 import { React, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import "./App.css";
-import { Button } from "@mui/material";
+import { Button , Box, Tab, Tabs, Typography } from "@mui/material";
 import ListItem from "@material-ui/core/ListItem";
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import { create } from "ipfs-http-client";
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import Web3 from "web3";
 
 import ImageToken from './ImageToken.json';
@@ -40,6 +39,7 @@ const authorization = "Basic " + btoa(projectId + ":" + projectKey);
 function ConnectWallet() {
   const [haveMetamask, sethaveMetamask] = useState(true);
   const [accountAddress, setAccountAddress] = useState();
+  const [tabIndex, setTabIndex] = useState(0);
 
   const [isConnected, setIsConnected] = useState(false);
 
@@ -67,6 +67,10 @@ function ConnectWallet() {
     };
     checkAvailableMetamask();
   }, []);
+
+  const handleTabChange = (event, newTabIndex) => {
+    setTabIndex(newTabIndex);
+  };
 
   const getMyTokens = async () => {
     console.log('aaa')
@@ -228,10 +232,19 @@ function ConnectWallet() {
                     {/* <Link target="_blank" href={`https://testnet.bscscan.com/address/${accountAddress}`} >{accountAddress}</Link> */}
                   </Toolbar>
                 </AppBar>
-                <ListItem>Mint your image</ListItem>
 
                 <ListItem>
-                      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
+                  <Box>
+                    <Box>
+                      <Tabs value={tabIndex} onChange={handleTabChange}>
+                        <Tab label="My NFT" />
+                        <Tab label="Marketplace" />
+                      </Tabs>
+                    </Box>
+                    <Box sx={{ padding: 2 }}>
+                      {tabIndex === 0 && (
+                        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
+                        <ListItem>Create your NFT</ListItem>
                         <ListItem>
                           <form onSubmit={uploadToIPFS}>
                               <input id="file-upload" type="file" multiple accept="image/*" />
@@ -260,10 +273,13 @@ function ConnectWallet() {
                             </ListItem>
                           </Grid>
                         ))}
-
+                        </Grid>
+                      )}
+                      {tabIndex === 1 && (
                         <ListItem>Marketplace</ListItem>
-
-                      </Grid>
+                      )}
+                    </Box>
+                  </Box>
                 </ListItem>
               </div>
             ) : (
