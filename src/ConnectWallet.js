@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { ethers, utils } from "ethers";
+import { ethers } from "ethers";
 import "./App.css";
 import { Button, Box, Tab, Tabs, Typography } from "@mui/material";
 import ListItem from "@material-ui/core/ListItem";
@@ -232,7 +232,12 @@ function ConnectWallet() {
 
   const buyNft = async (item) => {
     try {
-      let buyTx = await marketplaceContract.buyImageNFT(item.marketId);
+      let value = item.price * Math.pow(10, 18);
+      let valueInBnb = ethers.utils.formatEther(value.toString());
+
+      let buyTx = await marketplaceContract.buyImageNFT(item.marketId, {
+        value: ethers.utils.parseEther(valueInBnb),
+      });
 
       let tx = await buyTx.wait();
       console.log(
@@ -241,7 +246,7 @@ function ConnectWallet() {
       console.log(tx);
 
       const dataNft = {
-        address: item.seller,
+        address: accountAddress,
         tokenId: item.tokenId,
         tokenUri: item.tokenUri,
       }
@@ -373,38 +378,37 @@ function ConnectWallet() {
                             {item.address === accountAddress ? (
                               <Grid item xs={3} key={item.tokenId}>
                                 <ListItem>
-                                                            <img
-                                                              src={item.tokenURI}
-                                                              alt="imge"
-                                                              style={{ width: 150, height: 250 }}
-                                                            />
-                                 </ListItem>
+                                  <img
+                                    src={item.tokenUri}
+                                    alt="imge"
+                                    style={{ width: 150, height: 250 }}
+                                  />
+                                </ListItem>
+
+                                <ListItem>
+                                  <TextField
+                                    id="outlined-basic"
+                                    label="Price"
+                                    variant="outlined"
+                                    style={{ display: "inline" }}
+                                    onChange={(e) =>
+                                    setArrayListNFT({
+                                      tokenId: item.tokenId,
+                                      price: e.target.value,
+                                      uri: item.tokenUri,
+                                    })}
+                                  />
+                                </ListItem>
                             
-                                  <ListItem>
-                                                            <TextField
-                                                              id="outlined-basic"
-                                                              label="Price"
-                                                              variant="outlined"
-                                                              style={{ display: "inline" }}
-                                                              onChange={(e) =>
-                                                                setArrayListNFT({
-                                                                  tokenId: item.tokenId,
-                                                                  price: e.target.value,
-                                                                  uri: item.tokenURI,
-                                                                })
-                                                              }
-                                                            />
-                                  </ListItem>
-                            
-                                  <ListItem>
-                                    <Button
-                                      variant="contained"
-                                      style={{ display: "inline" }}
-                                      onClick={listNft}
-                                    >
-                                      List
-                                    </Button>
-                                  `</ListItem>
+                                <ListItem>
+                                  <Button
+                                    variant="contained"
+                                    style={{ display: "inline" }}
+                                    onClick={listNft}
+                                  >
+                                    List
+                                  </Button>
+                                </ListItem>
                               </Grid>
                             ) : null}
                             </>
