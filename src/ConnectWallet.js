@@ -168,7 +168,7 @@ function ConnectWallet() {
       const data = {
         address: accountAddress,
         tokenId: tokenId,
-        tokenURI: uri,
+        tokenUri: uri,
       };
 
       await addDoc(collection(db, "nfts"), data);
