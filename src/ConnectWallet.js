@@ -118,11 +118,10 @@ function ConnectWallet() {
         sethaveMetamask(false);
       }
       const accounts = await provider.send("eth_requestAccounts", []);
-      const account = utils.getAddress(accounts[0]);
       // let balanceAcc = await provider.getBalance(accounts[0]);
       // let balance = ethers.utils.formatEther(balanceAcc);
 
-      setAccountAddress(account);
+      setAccountAddress(accounts[0]);
       // setAccountBalance(balance);
       setIsConnected(true);
     } catch (err) {
@@ -231,15 +230,33 @@ function ConnectWallet() {
     }
   };
 
-  const buyNft = async () => {
+  const buyNft = async (item) => {
     try {
-      let buyTx = await marketplaceContract.buyImageNFT();
+      let buyTx = await marketplaceContract.buyImageNFT(item.marketId);
 
       let tx = await buyTx.wait();
       console.log(
         `Buyed successfully, see transaction: https://testnet.bscscan/tx/${tx.transactionHash}`
       );
       console.log(tx);
+
+      const dataNft = {
+        address: item.seller,
+        tokenId: item.tokenId,
+        tokenUri: item.tokenUri,
+      }
+
+      await addDoc(collection(db, "nfts"), dataNft);
+
+      const newNfts = marketplaces.filter(ele => ele.id !== item.id)
+      setMarketplaces(newNfts);
+      const docRef = doc(db, "marketplaces", item.id);
+      deleteDoc(docRef)
+        .then(() => {
+          console.log("Bought Successfully")
+        })
+        .catch((err) => console.log(err));
+
     } catch (err) {
       console.log(err);
     }
@@ -352,40 +369,45 @@ function ConnectWallet() {
 
                           <ListItem>My NFT</ListItem>
                           {nfts.map((item) => (
-                            <Grid item xs={3} key={item.tokenId}>
-                              <ListItem>
-                                <img
-                                  src={item.tokenURI}
-                                  alt="imge"
-                                  style={{ width: 150, height: 250 }}
-                                />
-                              </ListItem>
-
-                              <ListItem>
-                                <TextField
-                                  id="outlined-basic"
-                                  label="Price"
-                                  variant="outlined"
-                                  style={{ display: "inline" }}
-                                  onChange={(e) =>
-                                    setArrayListNFT({
-                                      tokenId: item.tokenId,
-                                      price: e.target.value,
-                                      uri: item.tokenURI,
-                                    })
-                                  }
-                                />
-                              </ListItem>
-                              <ListItem>
-                                <Button
-                                  variant="contained"
-                                  style={{ display: "inline" }}
-                                  onClick={listNft}
-                                >
-                                  List
-                                </Button>
-                              </ListItem>
-                            </Grid>
+                            <>
+                            {item.address === accountAddress ? (
+                              <Grid item xs={3} key={item.tokenId}>
+                                <ListItem>
+                                                            <img
+                                                              src={item.tokenURI}
+                                                              alt="imge"
+                                                              style={{ width: 150, height: 250 }}
+                                                            />
+                                 </ListItem>
+                            
+                                  <ListItem>
+                                                            <TextField
+                                                              id="outlined-basic"
+                                                              label="Price"
+                                                              variant="outlined"
+                                                              style={{ display: "inline" }}
+                                                              onChange={(e) =>
+                                                                setArrayListNFT({
+                                                                  tokenId: item.tokenId,
+                                                                  price: e.target.value,
+                                                                  uri: item.tokenURI,
+                                                                })
+                                                              }
+                                                            />
+                                  </ListItem>
+                            
+                                  <ListItem>
+                                    <Button
+                                      variant="contained"
+                                      style={{ display: "inline" }}
+                                      onClick={listNft}
+                                    >
+                                      List
+                                    </Button>
+                                  `</ListItem>
+                              </Grid>
+                            ) : null}
+                            </>
                           ))}
                         </Grid>
                       )}
@@ -440,7 +462,7 @@ function ConnectWallet() {
                                         <Button
                                           variant="contained"
                                           style={{ display: "inline" }}
-                                          onClick={buyNft}
+                                          onClick={() => buyNft(item)}
                                         >
                                           Buy
                                         </Button>
