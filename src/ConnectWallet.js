@@ -160,11 +160,6 @@ function ConnectWallet() {
       const tokenId = Web3.utils.hexToNumber(tx.logs[0].topics[3]);
       console.log(tokenId);
 
-      let approveTx = await nftContract.approve(marketplaceAddress, tokenId);
-      console.log(
-        `Approved successfully, see transaction: https://testnet.bscscan.com/tx/${approveTx.hash}`
-      );
-
       const data = {
         address: accountAddress,
         tokenId: tokenId,
@@ -174,7 +169,7 @@ function ConnectWallet() {
       await addDoc(collection(db, "nfts"), data);
 
       event.target.value = null;
-      window.location.reload();
+      // window.location.reload();
     } catch (err) {
       console.log(err);
     }
