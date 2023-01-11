@@ -144,19 +144,35 @@ function ConnectWallet() {
     const result = await ipfs.add(file);
 
     const url = "https://ngandt.infura-ipfs.io/ipfs/" + result.path;
-    console.log(url);
-    setUri(url);
-    form.reset();
+
+    const qNftUri = query(collection(db, "nfts"), where("tokenUri", "==", url));
+    const querySnapshotNft = await getDocs(qNftUri);
+    let docNft = querySnapshotNft.docs.map((doc) => ({id: doc.id, ...doc.data()}))
+
+    const qMarketUri = query(collection(db, "marketplaces"), where("tokenUri", "==", url));
+    const querySnapshotMarket = await getDocs(qMarketUri);
+    let docMarket = querySnapshotMarket.docs.map((doc) => ({id: doc.id, ...doc.data()}))
+
+    if (docNft.length > 0 || docMarket.length > 0) {
+      alert("This image has already been minted");
+      form.reset();
+    } else {
+      console.log(url);
+      setUri(url);
+      form.reset();
+    }
   };
 
   const safeMint = async (event) => {
-    try {
+    try {      
       let nftTx = await nftContract.safeMint(accountAddress, uri);
 
       let tx = await nftTx.wait();
-      console.log(
-        `Mintes successfully, see transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`
-      );
+
+      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+      };
+
       const tokenId = Web3.utils.hexToNumber(tx.logs[0].topics[3]);
       console.log(tokenId);
 
@@ -184,9 +200,9 @@ function ConnectWallet() {
       );
 
       let tx = await marketTx.wait();
-      console.log(
-        `Listed successfully , see transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`
-      );
+      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+      };
 
       const data = ethers.utils.defaultAbiCoder.decode(
         ["uint256", "address", "address"],
@@ -235,10 +251,9 @@ function ConnectWallet() {
       });
 
       let tx = await buyTx.wait();
-      console.log(
-        `Buyed successfully, see transaction: https://testnet.bscscan/tx/${tx.transactionHash}`
-      );
-      console.log(tx);
+      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+      };
 
       const dataNft = {
         address: accountAddress,
@@ -267,11 +282,10 @@ function ConnectWallet() {
       let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketId);
 
       let tx = await cancelTx.wait();
-      console.log(
-        `Cancelled successfully, see transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`
-      );
-
-      // if (tx.transactionHash) {
+      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+      };
+      
         const dataNft = {
           address: item.seller,
           tokenId: item.tokenId,
