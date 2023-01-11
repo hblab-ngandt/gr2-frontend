@@ -174,7 +174,7 @@ function ConnectWallet() {
       await addDoc(collection(db, "nfts"), data);
 
       event.target.value = null;
-      // window.location.reload();
+      window.location.reload();
     } catch (err) {
       console.log(err);
     }
@@ -276,7 +276,7 @@ function ConnectWallet() {
         `Cancelled successfully, see transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`
       );
 
-      if (tx.transactionHash) {
+      // if (tx.transactionHash) {
         const dataNft = {
           address: item.seller,
           tokenId: item.tokenId,
@@ -293,12 +293,6 @@ function ConnectWallet() {
             console.log("Deleted Successfully")
           })
           .catch((err) => console.log(err));
-        
-      } else {
-        console.log(
-          "Transaction hash not found, transaction cancelled"
-        );
-      }
     } catch (err) {
       console.log(err);
     }
@@ -378,16 +372,22 @@ function ConnectWallet() {
                             {item.address === accountAddress ? (
                               <Grid item xs={3} key={item.tokenId}>
                                 <ListItem>
+                                  <a 
+                                    href={item.tokenUri}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
                                   <img
                                     src={item.tokenUri}
                                     alt="imge"
                                     style={{ width: 150, height: 250 }}
                                   />
+                                  </a>
                                 </ListItem>
 
                                 <ListItem>
                                   <TextField
-                                    id="outlined-basic"
+                                    id="list-nft"
                                     label="Price"
                                     variant="outlined"
                                     style={{ display: "inline" }}
@@ -428,6 +428,11 @@ function ConnectWallet() {
                                 {marketplaces.map((item) => (
                                   <Grid item xs={3} key={item.tokenId}>
                                     <ListItem>
+                                      <a
+                                        href={item.tokenUri}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                      >
                                       <img
                                         src={item.tokenUri}
                                         alt="imge"
@@ -437,6 +442,7 @@ function ConnectWallet() {
                                           paddingRight: 60,
                                         }}
                                       />
+                                      </a>
                                     </ListItem>
 
                                     {accountAddress ===
