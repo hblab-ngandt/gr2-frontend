@@ -169,7 +169,7 @@ function ConnectWallet() {
       await addDoc(collection(db, "nfts"), data);
 
       event.target.value = null;
-      // window.location.reload();
+      window.location.reload();
     } catch (err) {
       console.log(err);
     }
