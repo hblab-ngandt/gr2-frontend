@@ -169,23 +169,25 @@ function ConnectWallet() {
 
       let tx = await nftTx.wait();
 
-      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-      };
-
-      const tokenId = Web3.utils.hexToNumber(tx.logs[0].topics[3]);
-      console.log(tokenId);
-
-      const data = {
-        address: accountAddress,
-        tokenId: tokenId,
-        tokenUri: uri,
-      };
-
-      await addDoc(collection(db, "nfts"), data);
-
-      event.target.value = null;
-      window.location.reload();
+      if (tx.transactionHash) {
+        if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+          window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+        };
+  
+        const tokenId = Web3.utils.hexToNumber(tx.logs[0].topics[3]);
+        console.log(tokenId);
+  
+        const data = {
+          address: accountAddress,
+          tokenId: tokenId,
+          tokenUri: uri,
+        };
+  
+        await addDoc(collection(db, "nfts"), data);
+  
+        event.target.value = null;
+        window.location.reload();
+      }
     } catch (err) {
       console.log(err);
     }
@@ -200,42 +202,45 @@ function ConnectWallet() {
       );
 
       let tx = await marketTx.wait();
-      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-      };
 
-      const data = ethers.utils.defaultAbiCoder.decode(
-        ["uint256", "address", "address"],
-        tx.logs[1].data
-      );
-      const price = Web3.utils.hexToNumber(data[0]);
-      const marketId = Web3.utils.hexToNumber(tx.logs[1].topics[1]);
-      const tokenId = Web3.utils.hexToNumber(tx.logs[1].topics[2]);
-
-      const marketItem = {
-        marketId: marketId,
-        tokenId: tokenId,
-        tokenUri: arrayListNFT.uri,
-        price: price,
-        seller: data[1],
-        owner: data[2],
-      };
-
-      // add to firestore
-      const newDoc = await addDoc(collection(db, "marketplaces"), marketItem);
-      console.log("new document list id: ", newDoc.id);
-
-      const q = query(collection(db, "nfts"), where("tokenId", "==", tokenId));
-      const querySnapshot = await getDocs(q);
-      let docId = querySnapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}))
-      const docRef = doc(db, "nfts", docId[0].id);
-      deleteDoc(docRef)
-        .then(() => {
-          console.log("Deleted your nft successfully")
-        })
-        .catch((err) => console.log(err));
-      
-      window.location.reload();
+      if (tx.transactionHash) {
+        if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+          window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+        };
+  
+        const data = ethers.utils.defaultAbiCoder.decode(
+          ["uint256", "address", "address"],
+          tx.logs[1].data
+        );
+        const price = Web3.utils.hexToNumber(data[0]);
+        const marketId = Web3.utils.hexToNumber(tx.logs[1].topics[1]);
+        const tokenId = Web3.utils.hexToNumber(tx.logs[1].topics[2]);
+  
+        const marketItem = {
+          marketId: marketId,
+          tokenId: tokenId,
+          tokenUri: arrayListNFT.uri,
+          price: price,
+          seller: data[1],
+          owner: data[2],
+        };
+  
+        // add to firestore
+        const newDoc = await addDoc(collection(db, "marketplaces"), marketItem);
+        console.log("new document list id: ", newDoc.id);
+  
+        const q = query(collection(db, "nfts"), where("tokenId", "==", tokenId));
+        const querySnapshot = await getDocs(q);
+        let docId = querySnapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}))
+        const docRef = doc(db, "nfts", docId[0].id);
+        deleteDoc(docRef)
+          .then(() => {
+            console.log("Deleted your nft successfully")
+          })
+          .catch((err) => console.log(err));
+        
+        window.location.reload();
+      }
     } catch (err) {
       console.log(err);
     }
@@ -251,26 +256,28 @@ function ConnectWallet() {
       });
 
       let tx = await buyTx.wait();
-      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-      };
-
-      const dataNft = {
-        address: accountAddress,
-        tokenId: item.tokenId,
-        tokenUri: item.tokenUri,
+      if (tx.transactionHash) {
+        if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+          window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+        };
+  
+        const dataNft = {
+          address: accountAddress,
+          tokenId: item.tokenId,
+          tokenUri: item.tokenUri,
+        }
+  
+        await addDoc(collection(db, "nfts"), dataNft);
+  
+        const newNfts = marketplaces.filter(ele => ele.id !== item.id)
+        setMarketplaces(newNfts);
+        const docRef = doc(db, "marketplaces", item.id);
+        deleteDoc(docRef)
+          .then(() => {
+            console.log("Bought Successfully")
+          })
+          .catch((err) => console.log(err));
       }
-
-      await addDoc(collection(db, "nfts"), dataNft);
-
-      const newNfts = marketplaces.filter(ele => ele.id !== item.id)
-      setMarketplaces(newNfts);
-      const docRef = doc(db, "marketplaces", item.id);
-      deleteDoc(docRef)
-        .then(() => {
-          console.log("Bought Successfully")
-        })
-        .catch((err) => console.log(err));
 
     } catch (err) {
       console.log(err);
@@ -282,26 +289,28 @@ function ConnectWallet() {
       let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketId);
 
       let tx = await cancelTx.wait();
-      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-      };
-      
-        const dataNft = {
-          address: item.seller,
-          tokenId: item.tokenId,
-          tokenUri: item.tokenUri,
-        }
-
-        await addDoc(collection(db, "nfts"), dataNft);
-
-        const newNfts = marketplaces.filter(ele => ele.id !== item.id)
-        setMarketplaces(newNfts);
-        const docRef = doc(db, "marketplaces", item.id);
-        deleteDoc(docRef)
-          .then(() => {
-            console.log("Deleted Successfully")
-          })
-          .catch((err) => console.log(err));
+      if (tx.transactionHash) {
+        if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+          window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+        };
+  
+          const dataNft = {
+            address: item.seller,
+            tokenId: item.tokenId,
+            tokenUri: item.tokenUri,
+          }
+  
+          await addDoc(collection(db, "nfts"), dataNft);
+  
+          const newNfts = marketplaces.filter(ele => ele.id !== item.id)
+          setMarketplaces(newNfts);
+          const docRef = doc(db, "marketplaces", item.id);
+          deleteDoc(docRef)
+            .then(() => {
+              console.log("Deleted Successfully")
+            })
+            .catch((err) => console.log(err));
+      }
     } catch (err) {
       console.log(err);
     }
