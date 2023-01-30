@@ -132,7 +132,7 @@ function ConnectWallet() {
     
   };
 
-  const fetchContract = async () => {
+  const fetchMyNft = async () => {
     try {
       let txNftContract = await readNftContract.getCounterToken();
       let numberToken = Web3.utils.hexToNumber(txNftContract)
@@ -156,7 +156,7 @@ function ConnectWallet() {
   }
 
   useEffect(() => {
-    fetchContract();
+    fetchMyNft();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   console.log(myNft);
