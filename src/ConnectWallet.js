@@ -125,23 +125,11 @@ function ConnectWallet() {
     const result = await ipfs.add(file);
 
     const url = "https://ngandt.infura-ipfs.io/ipfs/" + result.path;
-
-    const qNftUri = query(collection(db, "nfts"), where("tokenUri", "==", url));
-    const querySnapshotNft = await getDocs(qNftUri);
-    let docNft = querySnapshotNft.docs.map((doc) => ({id: doc.id, ...doc.data()}))
-
-    const qMarketUri = query(collection(db, "marketplaces"), where("tokenUri", "==", url));
-    const querySnapshotMarket = await getDocs(qMarketUri);
-    let docMarket = querySnapshotMarket.docs.map((doc) => ({id: doc.id, ...doc.data()}))
-
-    if (docNft.length > 0 || docMarket.length > 0) {
-      alert("This image has already been minted");
-      form.reset();
-    } else {
-      console.log(url);
-      setUri(url);
-      form.reset();
-    }
+    
+    console.log(url);
+    setUri(url);
+    form.reset();
+    
   };
 
   const fetchContract = async () => {
@@ -173,17 +161,13 @@ function ConnectWallet() {
   }, []);
   console.log(myNft);
 
-  console.log(myNft);
-
   const safeMint = async (event) => {
     try {      
       let nftTx = await nftContract.safeMint(accountAddress, uri);
 
       let tx = await nftTx.wait();
 
-      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-      };
+      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
       window.location.reload();
 
     } catch (err) {
