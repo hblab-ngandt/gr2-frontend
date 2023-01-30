@@ -42,6 +42,12 @@ const nftContract = new ethers.Contract(
   ImageToken.abi,
   signer);
 
+const readNftContract = new ethers.Contract(
+  nftAddress,
+  ImageToken.abi,
+  provider
+);
+
 const marketplaceContract = new ethers.Contract(
   marketplaceAddress,
   ImageMarketplace.abi,
@@ -61,6 +67,8 @@ function ConnectWallet() {
 
   const [arrayListNFT, setArrayListNFT] = useState([]);
   const [uri, setUri] = useState("");
+
+  const [myNft, setMyNft] = useState([]);
 
   const ipfs = create({
     url: "https://ipfs.infura.io:5001/api/v0",
@@ -84,33 +92,6 @@ function ConnectWallet() {
   };
 
   const [marketplaces, setMarketplaces] = useState([]);
-  const [nfts, setNfts] = useState([]);
-
-  const fetchData = async () => {
-    try {
-      const MPRef = collection(db, "marketplaces");
-      const docsSnap = await getDocs(MPRef);
-      const documents = docsSnap.docs.map((doc) => ({
-        ...doc.data(), // destructure
-        id: doc.id,
-      }));
-      setMarketplaces(documents);
-
-      const NFTRef = collection(db, "nfts");
-      const docsSnapNft = await getDocs(NFTRef);
-      const documentsNft = docsSnapNft.docs.map((doc) => ({
-        ...doc.data(), // destructure 
-        id: doc.id,
-      }));
-      setNfts(documentsNft);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const connectWallet = async () => {
     try {
@@ -121,7 +102,7 @@ function ConnectWallet() {
       // let balanceAcc = await provider.getBalance(accounts[0]);
       // let balance = ethers.utils.formatEther(balanceAcc);
 
-      setAccountAddress(accounts[0]);
+      setAccountAddress(ethers.utils.getAddress(accounts[0]));
       // setAccountBalance(balance);
       setIsConnected(true);
     } catch (err) {
@@ -163,31 +144,48 @@ function ConnectWallet() {
     }
   };
 
+  const fetchContract = async () => {
+    try {
+      let txNftContract = await readNftContract.getCounterToken();
+      let numberToken = Web3.utils.hexToNumber(txNftContract)
+
+      for (let i = 0; i < numberToken; i++) {
+        let owners = await readNftContract.ownerOf(i);
+        if (accountAddress === owners) {
+          let uri = await readNftContract.tokenURI(i);
+          setMyNft([
+            ...myNft,
+            {
+              tokenId: i,
+              tokenUri: uri
+            },
+          ]);
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  useEffect(() => {
+    fetchContract();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  console.log(myNft);
+
+  console.log(myNft);
+
   const safeMint = async (event) => {
     try {      
       let nftTx = await nftContract.safeMint(accountAddress, uri);
 
       let tx = await nftTx.wait();
 
-      if (tx.transactionHash) {
-        if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-          window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-        };
-  
-        const tokenId = Web3.utils.hexToNumber(tx.logs[0].topics[3]);
-        console.log(tokenId);
-  
-        const data = {
-          address: accountAddress,
-          tokenId: tokenId,
-          tokenUri: uri,
-        };
-  
-        await addDoc(collection(db, "nfts"), data);
-  
-        event.target.value = null;
-        window.location.reload();
-      }
+      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+      };
+      window.location.reload();
+
     } catch (err) {
       console.log(err);
     }
@@ -202,45 +200,42 @@ function ConnectWallet() {
       );
 
       let tx = await marketTx.wait();
+      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+      };
 
-      if (tx.transactionHash) {
-        if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-          window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-        };
-  
-        const data = ethers.utils.defaultAbiCoder.decode(
-          ["uint256", "address", "address"],
-          tx.logs[1].data
-        );
-        const price = Web3.utils.hexToNumber(data[0]);
-        const marketId = Web3.utils.hexToNumber(tx.logs[1].topics[1]);
-        const tokenId = Web3.utils.hexToNumber(tx.logs[1].topics[2]);
-  
-        const marketItem = {
-          marketId: marketId,
-          tokenId: tokenId,
-          tokenUri: arrayListNFT.uri,
-          price: price,
-          seller: data[1],
-          owner: data[2],
-        };
-  
-        // add to firestore
-        const newDoc = await addDoc(collection(db, "marketplaces"), marketItem);
-        console.log("new document list id: ", newDoc.id);
-  
-        const q = query(collection(db, "nfts"), where("tokenId", "==", tokenId));
-        const querySnapshot = await getDocs(q);
-        let docId = querySnapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}))
-        const docRef = doc(db, "nfts", docId[0].id);
-        deleteDoc(docRef)
-          .then(() => {
-            console.log("Deleted your nft successfully")
-          })
-          .catch((err) => console.log(err));
-        
-        window.location.reload();
-      }
+      const data = ethers.utils.defaultAbiCoder.decode(
+        ["uint256", "address", "address"],
+        tx.logs[1].data
+      );
+      const price = Web3.utils.hexToNumber(data[0]);
+      const marketId = Web3.utils.hexToNumber(tx.logs[1].topics[1]);
+      const tokenId = Web3.utils.hexToNumber(tx.logs[1].topics[2]);
+
+      const marketItem = {
+        marketId: marketId,
+        tokenId: tokenId,
+        tokenUri: arrayListNFT.uri,
+        price: price,
+        seller: data[1],
+        owner: data[2],
+      };
+
+      // add to firestore
+      const newDoc = await addDoc(collection(db, "marketplaces"), marketItem);
+      console.log("new document list id: ", newDoc.id);
+
+      const q = query(collection(db, "nfts"), where("tokenId", "==", tokenId));
+      const querySnapshot = await getDocs(q);
+      let docId = querySnapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}))
+      const docRef = doc(db, "nfts", docId[0].id);
+      deleteDoc(docRef)
+        .then(() => {
+          console.log("Deleted your nft successfully")
+        })
+        .catch((err) => console.log(err));
+      
+      window.location.reload();
     } catch (err) {
       console.log(err);
     }
@@ -256,28 +251,26 @@ function ConnectWallet() {
       });
 
       let tx = await buyTx.wait();
-      if (tx.transactionHash) {
-        if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-          window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-        };
-  
-        const dataNft = {
-          address: accountAddress,
-          tokenId: item.tokenId,
-          tokenUri: item.tokenUri,
-        }
-  
-        await addDoc(collection(db, "nfts"), dataNft);
-  
-        const newNfts = marketplaces.filter(ele => ele.id !== item.id)
-        setMarketplaces(newNfts);
-        const docRef = doc(db, "marketplaces", item.id);
-        deleteDoc(docRef)
-          .then(() => {
-            console.log("Bought Successfully")
-          })
-          .catch((err) => console.log(err));
+      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+      };
+
+      const dataNft = {
+        address: accountAddress,
+        tokenId: item.tokenId,
+        tokenUri: item.tokenUri,
       }
+
+      await addDoc(collection(db, "nfts"), dataNft);
+
+      const newNfts = marketplaces.filter(ele => ele.id !== item.id)
+      setMarketplaces(newNfts);
+      const docRef = doc(db, "marketplaces", item.id);
+      deleteDoc(docRef)
+        .then(() => {
+          console.log("Bought Successfully")
+        })
+        .catch((err) => console.log(err));
 
     } catch (err) {
       console.log(err);
@@ -289,28 +282,26 @@ function ConnectWallet() {
       let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketId);
 
       let tx = await cancelTx.wait();
-      if (tx.transactionHash) {
-        if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-          window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-        };
-  
-          const dataNft = {
-            address: item.seller,
-            tokenId: item.tokenId,
-            tokenUri: item.tokenUri,
-          }
-  
-          await addDoc(collection(db, "nfts"), dataNft);
-  
-          const newNfts = marketplaces.filter(ele => ele.id !== item.id)
-          setMarketplaces(newNfts);
-          const docRef = doc(db, "marketplaces", item.id);
-          deleteDoc(docRef)
-            .then(() => {
-              console.log("Deleted Successfully")
-            })
-            .catch((err) => console.log(err));
-      }
+      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+      };
+      
+        const dataNft = {
+          address: item.seller,
+          tokenId: item.tokenId,
+          tokenUri: item.tokenUri,
+        }
+
+        await addDoc(collection(db, "nfts"), dataNft);
+
+        const newNfts = marketplaces.filter(ele => ele.id !== item.id)
+        setMarketplaces(newNfts);
+        const docRef = doc(db, "marketplaces", item.id);
+        deleteDoc(docRef)
+          .then(() => {
+            console.log("Deleted Successfully")
+          })
+          .catch((err) => console.log(err));
     } catch (err) {
       console.log(err);
     }
@@ -385,9 +376,8 @@ function ConnectWallet() {
                           </ListItem>
 
                           <ListItem>My NFT</ListItem>
-                          {nfts.map((item) => (
+                          {myNft.map((item) => (
                             <>
-                            {item.address === accountAddress ? (
                               <Grid item xs={3} key={item.tokenId}>
                                 <ListItem>
                                   <a 
@@ -428,7 +418,6 @@ function ConnectWallet() {
                                   </Button>
                                 </ListItem>
                               </Grid>
-                            ) : null}
                             </>
                           ))}
                         </Grid>
@@ -463,12 +452,29 @@ function ConnectWallet() {
                                       </a>
                                     </ListItem>
 
-                                    {accountAddress ===
+                                    {accountAddress.toLowerCase() ===
                                     item.seller.toLowerCase() ? (
-                                      <ListItem>Seller : You</ListItem>
+                                      // eslint-disable-next-line no-template-curly-in-string
+                                      <ListItem> 
+                                        <a 
+                                          style={{ textDecoration: "none"}}
+                                          href={`https://testnet.bscscan.com/address/${item.seller}`}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                        >
+                                          Seller : You 
+                                        </a> 
+                                      </ListItem>
                                     ) : (
                                       <ListItem>
-                                        Seller : {item.seller}
+                                        <a 
+                                          style={{ textDecoration: "none"}}
+                                          href={`https://testnet.bscscan.com/address/${item.seller}`}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                        >
+                                        Seller : {item.seller.slice(0, 7) + '... ' + item.seller.slice(item.seller.length - 3, item.seller.length)}
+                                        </a>
                                       </ListItem>
                                     )}
                                     <ListItem>Owner : Marketplace</ListItem>
