@@ -32,22 +32,10 @@ const nftContract = new ethers.Contract(
   ImageToken.abi,
   signer);
 
-const readNftContract = new ethers.Contract(
-  nftAddress,
-  ImageToken.abi,
-  provider
-);
-
 const marketplaceContract = new ethers.Contract(
   marketplaceAddress,
   ImageMarketplace.abi,
   signer
-);
-
-const readMarketplaceContract = new ethers.Contract(
-  marketplaceAddress,
-  ImageMarketplace.abi,
-  provider
 );
 
 const projectId = REACT_APP_IPFS_PROJECT_ID;
@@ -122,14 +110,14 @@ function ConnectWallet() {
 
   const fetchMyNft = async () => {
     try {
-      let txNftContract = await readNftContract.getCounterToken();
+      let txNftContract = await nftContract.getCounterToken();
       let numberToken = Web3.utils.hexToNumber(txNftContract);
       let temp = [];
 
       for (let i = 0; i < numberToken; i++) {
-        let owners = await readNftContract.ownerOf(i);
+        let owners = await nftContract.ownerOf(i);
         if (accountAddress === owners) {
-          let uri = await readNftContract.tokenURI(i);
+          let uri = await nftContract.tokenURI(i);
           
           const data = {
             tokenId: i,
@@ -143,15 +131,15 @@ function ConnectWallet() {
       console.log(e);
     }
   }
-
+  console.log(myNft)
   const fetchMarketplace = async () => {
     try {
-      let tx = await readMarketplaceContract.getListedNFT();
+      let tx = await marketplaceContract.getListedNFT();
       let temp = [];
 
       for (let i = 1; i < tx.length; i++) {
         let tokenId = Web3.utils.hexToNumber(tx[i].tokenId);
-        let uri = await readNftContract.tokenURI(tokenId);
+        let uri = await nftContract.tokenURI(tokenId);
 
         const data = {
           marketItemId: Web3.utils.hexToNumber(tx[i].marketItemId),
@@ -211,7 +199,7 @@ function ConnectWallet() {
       let value = item.price * Math.pow(10, 18);
       let valueInBnb = ethers.utils.formatEther(value.toString());
 
-      let buyTx = await marketplaceContract.buyImageNFT(item.marketId, {
+      let buyTx = await marketplaceContract.buyImageNFT(item.marketItemId, {
         value: ethers.utils.parseEther(valueInBnb),
       });
 
@@ -226,7 +214,7 @@ function ConnectWallet() {
 
   const cancelNft = async (item) => {
     try {
-      let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketId);
+      let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketItemId);
       let tx = await cancelTx.wait();
       
       console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
