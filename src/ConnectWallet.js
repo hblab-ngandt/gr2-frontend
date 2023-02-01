@@ -9,19 +9,9 @@ import { create } from "ipfs-http-client";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Web3 from "web3";
-import {
-  collection,
-  addDoc,
-  doc,
-  deleteDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
 
 import ImageToken from "./ImageToken.json";
 import ImageMarketplace from "./ImageMarketplace.json";
-import { db } from "./Firebase";
 
 const {
   REACT_APP_IPFS_PROJECT_ID,
@@ -104,11 +94,7 @@ function ConnectWallet() {
         sethaveMetamask(false);
       }
       const accounts = await provider.send("eth_requestAccounts", []);
-      // let balanceAcc = await provider.getBalance(accounts[0]);
-      // let balance = ethers.utils.formatEther(balanceAcc);
-
       setAccountAddress(ethers.utils.getAddress(accounts[0]));
-      // setAccountBalance(balance);
       setIsConnected(true);
     } catch (err) {
       setIsConnected(false);
@@ -128,10 +114,7 @@ function ConnectWallet() {
     const file = files[0];
     // upload files
     const result = await ipfs.add(file);
-
     const url = "https://ngandt.infura-ipfs.io/ipfs/" + result.path;
-    
-    console.log(url);
     setUri(url);
     form.reset();
     
@@ -140,21 +123,22 @@ function ConnectWallet() {
   const fetchMyNft = async () => {
     try {
       let txNftContract = await readNftContract.getCounterToken();
-      let numberToken = Web3.utils.hexToNumber(txNftContract)
+      let numberToken = Web3.utils.hexToNumber(txNftContract);
+      let temp = [];
 
       for (let i = 0; i < numberToken; i++) {
         let owners = await readNftContract.ownerOf(i);
         if (accountAddress === owners) {
           let uri = await readNftContract.tokenURI(i);
-          setMyNft([
-            ...myNft,
-            {
-              tokenId: i,
-              tokenUri: uri
-            },
-          ]);
+          
+          const data = {
+            tokenId: i,
+            tokenUri: uri
+          }
+          temp.push(data);
         }
       }
+      setMyNft(temp);
     } catch (e) {
       console.log(e);
     }
@@ -163,7 +147,6 @@ function ConnectWallet() {
   const fetchMarketplace = async () => {
     try {
       let tx = await readMarketplaceContract.getListedNFT();
-      console.log('Listed NFT:', tx);
       let temp = [];
 
       for (let i = 1; i < tx.length; i++) {
@@ -192,12 +175,10 @@ function ConnectWallet() {
     fetchMarketplace();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  console.log('Marketplace: ', marketplaces);
 
-  const safeMint = async (event) => {
+  const safeMint = async () => {
     try {      
       let nftTx = await nftContract.safeMint(accountAddress, uri);
-
       let tx = await nftTx.wait();
 
       console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
@@ -217,41 +198,8 @@ function ConnectWallet() {
       );
 
       let tx = await marketTx.wait();
-      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-      };
+      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
 
-      const data = ethers.utils.defaultAbiCoder.decode(
-        ["uint256", "address", "address"],
-        tx.logs[1].data
-      );
-      const price = Web3.utils.hexToNumber(data[0]);
-      const marketId = Web3.utils.hexToNumber(tx.logs[1].topics[1]);
-      const tokenId = Web3.utils.hexToNumber(tx.logs[1].topics[2]);
-
-      const marketItem = {
-        marketId: marketId,
-        tokenId: tokenId,
-        tokenUri: arrayListNFT.uri,
-        price: price,
-        seller: data[1],
-        owner: data[2],
-      };
-
-      // add to firestore
-      const newDoc = await addDoc(collection(db, "marketplaces"), marketItem);
-      console.log("new document list id: ", newDoc.id);
-
-      const q = query(collection(db, "nfts"), where("tokenId", "==", tokenId));
-      const querySnapshot = await getDocs(q);
-      let docId = querySnapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}))
-      const docRef = doc(db, "nfts", docId[0].id);
-      deleteDoc(docRef)
-        .then(() => {
-          console.log("Deleted your nft successfully")
-        })
-        .catch((err) => console.log(err));
-      
       window.location.reload();
     } catch (err) {
       console.log(err);
@@ -268,44 +216,25 @@ function ConnectWallet() {
       });
 
       let tx = await buyTx.wait();
-      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-      };
-
+      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
+      
+      window.location.reload();
     } catch (err) {
       console.log(err);
     }
   };
 
-  // const cancelNft = async (item) => {
-  //   try {
-  //     let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketId);
-
-  //     let tx = await cancelTx.wait();
-  //     if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-  //       window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-  //     };
+  const cancelNft = async (item) => {
+    try {
+      let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketId);
+      let tx = await cancelTx.wait();
       
-  //       const dataNft = {
-  //         address: item.seller,
-  //         tokenId: item.tokenId,
-  //         tokenUri: item.tokenUri,
-  //       }
-
-  //       await addDoc(collection(db, "nfts"), dataNft);
-
-  //       const newNfts = marketplaces.filter(ele => ele.id !== item.id)
-  //       setMarketplaces(newNfts);
-  //       const docRef = doc(db, "marketplaces", item.id);
-  //       deleteDoc(docRef)
-  //         .then(() => {
-  //           console.log("Deleted Successfully")
-  //         })
-  //         .catch((err) => console.log(err));
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
+      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
+      window.location.reload();
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <div>
@@ -484,7 +413,7 @@ function ConnectWallet() {
                                         <Button
                                           variant="contained"
                                           style={{ display: "inline" }}
-                                          // onClick={() => cancelNft(item)}
+                                          onClick={() => cancelNft(item)}
                                         >
                                           Cancel
                                         </Button>
@@ -494,7 +423,7 @@ function ConnectWallet() {
                                         <Button
                                           variant="contained"
                                           style={{ display: "inline" }}
-                                          // onClick={() => buyNft(item)}
+                                          onClick={() => buyNft(item)}
                                         >
                                           Buy
                                         </Button>
