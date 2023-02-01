@@ -349,6 +349,55 @@ function ConnectWallet() {
                               </Grid>
                             </>
                           ))}
+                          
+                          {/* Marketplace my nft */}
+                          {marketplaces.length > 0 ? (
+                            <>
+                              {marketplaces.filter((item) => item.seller === accountAddress).map((item) => (
+                                <Grid item xs={3} key={item.tokenId}>
+                                  <ListItem>
+                                    <a
+                                      href={item.tokenUri}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                    <img
+                                      src={item.tokenUri}
+                                      alt="imge"
+                                      style={{
+                                        width: 150,
+                                        height: 250,
+                                        paddingRight: 60,
+                                      }}
+                                    />
+                                    </a>
+                                  </ListItem>
+                                  <ListItem>
+                                    <a 
+                                      style={{ textDecoration: "none"}}
+                                      href={`https://testnet.bscscan.com/address/${item.seller}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      Seller : You 
+                                    </a> 
+                                  </ListItem>
+                                  
+                                  <ListItem>Price : {item.price}</ListItem>
+
+                                  <ListItem>
+                                    <Button
+                                      variant="contained"
+                                      style={{ display: "inline" }}
+                                      onClick={() => cancelNft(item)}
+                                      >
+                                      Cancel
+                                    </Button>
+                                  </ListItem>
+                                </Grid>
+                              ))}
+                            </>
+                          ) : null}                          
                         </Grid>
                       )}
                       {tabIndex === 1 && (
@@ -381,8 +430,7 @@ function ConnectWallet() {
                                       </a>
                                     </ListItem>
 
-                                    {accountAddress.toLowerCase() ===
-                                    item.seller.toLowerCase() ? (
+                                    {accountAddress === item.seller ? (
                                       // eslint-disable-next-line no-template-curly-in-string
                                       <ListItem> 
                                         <a 
