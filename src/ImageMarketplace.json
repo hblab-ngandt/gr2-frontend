@@ -2,7 +2,7 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "ImageMarketplace",
   "sourceName": "contracts/ImageMarketplace.sol",
-  "abi": [
+  "abi":[
     {
       "inputs": [],
       "stateMutability": "nonpayable",
@@ -217,6 +217,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "_marketItemIds",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -244,12 +257,44 @@
     },
     {
       "inputs": [],
-      "name": "getListingFee",
+      "name": "getListedNFT",
       "outputs": [
         {
-          "internalType": "uint256",
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "marketItemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "nftContract",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "seller",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ImageMarketplace.MarketItem[]",
           "name": "",
-          "type": "uint256"
+          "type": "tuple[]"
         }
       ],
       "stateMutability": "view",
@@ -405,25 +450,6 @@
       "name": "upgradeToAndCall",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "whitelistNFT",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     }
   ],

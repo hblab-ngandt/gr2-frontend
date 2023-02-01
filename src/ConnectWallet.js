@@ -54,6 +54,12 @@ const marketplaceContract = new ethers.Contract(
   signer
 );
 
+const readMarketplaceContract = new ethers.Contract(
+  marketplaceAddress,
+  ImageMarketplace.abi,
+  provider
+);
+
 const projectId = REACT_APP_IPFS_PROJECT_ID;
 const projectKey = REACT_APP_IPFS_PROJECT_KEY;
 const authorization = "Basic " + btoa(projectId + ":" + projectKey);
@@ -69,6 +75,7 @@ function ConnectWallet() {
   const [uri, setUri] = useState("");
 
   const [myNft, setMyNft] = useState([]);
+  const [marketplaces, setMarketplaces] = useState([]);
 
   const ipfs = create({
     url: "https://ipfs.infura.io:5001/api/v0",
@@ -90,8 +97,6 @@ function ConnectWallet() {
   const handleTabChange = (event, newTabIndex) => {
     setTabIndex(newTabIndex);
   };
-
-  const [marketplaces, setMarketplaces] = useState([]);
 
   const connectWallet = async () => {
     try {
@@ -155,11 +160,39 @@ function ConnectWallet() {
     }
   }
 
+  const fetchMarketplace = async () => {
+    try {
+      let tx = await readMarketplaceContract.getListedNFT();
+      console.log('Listed NFT:', tx);
+      let temp = [];
+
+      for (let i = 1; i < tx.length; i++) {
+        let tokenId = Web3.utils.hexToNumber(tx[i].tokenId);
+        let uri = await readNftContract.tokenURI(tokenId);
+
+        const data = {
+          marketItemId: Web3.utils.hexToNumber(tx[i].marketItemId),
+          nftContract: tx[i].nftContract,
+          owner: tx[i].owner,
+          price: Web3.utils.hexToNumber(tx[i].price),
+          seller: tx[i].seller,
+          tokenId: tokenId,
+          tokenUri: uri
+        }
+        temp.push(data);
+      }
+      setMarketplaces(temp);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   useEffect(() => {
     fetchMyNft();
+    fetchMarketplace();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  console.log(myNft);
+  console.log('Marketplace: ', marketplaces);
 
   const safeMint = async (event) => {
     try {      
@@ -239,57 +272,40 @@ function ConnectWallet() {
         window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
       };
 
-      const dataNft = {
-        address: accountAddress,
-        tokenId: item.tokenId,
-        tokenUri: item.tokenUri,
-      }
-
-      await addDoc(collection(db, "nfts"), dataNft);
-
-      const newNfts = marketplaces.filter(ele => ele.id !== item.id)
-      setMarketplaces(newNfts);
-      const docRef = doc(db, "marketplaces", item.id);
-      deleteDoc(docRef)
-        .then(() => {
-          console.log("Bought Successfully")
-        })
-        .catch((err) => console.log(err));
-
     } catch (err) {
       console.log(err);
     }
   };
 
-  const cancelNft = async (item) => {
-    try {
-      let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketId);
+  // const cancelNft = async (item) => {
+  //   try {
+  //     let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketId);
 
-      let tx = await cancelTx.wait();
-      if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
-        window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
-      };
+  //     let tx = await cancelTx.wait();
+  //     if (window.confirm('Minted succesfully - OK to see transaction , Cancel to Stay here')) {
+  //       window.open(`https://testnet.bscscan.com/tx/${tx.transactionHash}`, '_blank');
+  //     };
       
-        const dataNft = {
-          address: item.seller,
-          tokenId: item.tokenId,
-          tokenUri: item.tokenUri,
-        }
+  //       const dataNft = {
+  //         address: item.seller,
+  //         tokenId: item.tokenId,
+  //         tokenUri: item.tokenUri,
+  //       }
 
-        await addDoc(collection(db, "nfts"), dataNft);
+  //       await addDoc(collection(db, "nfts"), dataNft);
 
-        const newNfts = marketplaces.filter(ele => ele.id !== item.id)
-        setMarketplaces(newNfts);
-        const docRef = doc(db, "marketplaces", item.id);
-        deleteDoc(docRef)
-          .then(() => {
-            console.log("Deleted Successfully")
-          })
-          .catch((err) => console.log(err));
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  //       const newNfts = marketplaces.filter(ele => ele.id !== item.id)
+  //       setMarketplaces(newNfts);
+  //       const docRef = doc(db, "marketplaces", item.id);
+  //       deleteDoc(docRef)
+  //         .then(() => {
+  //           console.log("Deleted Successfully")
+  //         })
+  //         .catch((err) => console.log(err));
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
 
   return (
     <div>
@@ -461,16 +477,14 @@ function ConnectWallet() {
                                         </a>
                                       </ListItem>
                                     )}
-                                    <ListItem>Owner : Marketplace</ListItem>
                                     <ListItem>Price : {item.price}</ListItem>
 
-                                    {accountAddress ===
-                                    item.seller.toLowerCase() ? (
+                                    {accountAddress === item.seller ? (
                                       <ListItem>
                                         <Button
                                           variant="contained"
                                           style={{ display: "inline" }}
-                                          onClick={() => cancelNft(item)}
+                                          // onClick={() => cancelNft(item)}
                                         >
                                           Cancel
                                         </Button>
@@ -480,7 +494,7 @@ function ConnectWallet() {
                                         <Button
                                           variant="contained"
                                           style={{ display: "inline" }}
-                                          onClick={() => buyNft(item)}
+                                          // onClick={() => buyNft(item)}
                                         >
                                           Buy
                                         </Button>
