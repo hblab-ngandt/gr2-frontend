@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { ethers, providers } from "ethers";
+import { ethers } from "ethers";
 import "./App.css";
 import { Button, Box, Tab, Tabs, Typography } from "@mui/material";
 import ListItem from "@material-ui/core/ListItem";
@@ -71,6 +71,28 @@ function ConnectWallet() {
         sethaveMetamask(false);
       }
       sethaveMetamask(true);
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{
+            chainId: "0x61",
+          }]
+        });
+      } catch (e) {
+        if (e.code === 4902) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainName: 'Polygon Mainnet',
+                chainId: '0x61',
+                nativeCurrency: { name: 'BNB', decimals: 18, symbol: 'BNB' },
+                rpcUrls: ['https://data-seed-prebsc-1-s3.binance.org:8545']
+              }
+            ]
+          });
+        }
+      }
     };
     checkAvailableMetamask();
   }, []);
@@ -84,6 +106,22 @@ function ConnectWallet() {
       if (!window.ethereum) {
         sethaveMetamask(false);
       }
+
+      // await window.ethereum.request({
+      //   method: "wallet_switchEthereumChain",
+      //   params: [{
+      //     chainId: "0x61",
+      //     // rpcUrls: ["https://data-seed-prebsc-1-s3.binance.org:8545"],
+      //     // chainName: "Binance Smart Chain Testnet",
+      //     // nativeCurrency: {
+      //     //   name: "BNB",
+      //     //   symbol: "BNB",
+      //     //   decimals: 18
+      //     // },
+      //     // blockExplorerUrls: ["https://testnet.bscscan.com/"]
+      //   }]
+      // });
+
       const accounts = await provider.send("eth_requestAccounts", []);
       setAccountAddress(ethers.utils.getAddress(accounts[0]));
       let balanceAddress = await provider.getBalance(accounts[0]);
@@ -93,6 +131,7 @@ function ConnectWallet() {
       setIsConnected(false);
     }
   };
+  console.log('fsfsd')
 
   const uploadToIPFS = async (event) => {
     event.preventDefault();
@@ -202,7 +241,6 @@ function ConnectWallet() {
     }
   };
 
-  console.log('balance: ', balance);
   const buyNft = async (item) => {
     try {
       let valueInBnb = ethers.utils.formatEther(item.price.toString());
