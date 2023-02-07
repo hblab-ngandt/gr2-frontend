@@ -53,7 +53,7 @@ function ConnectWallet() {
   const [isConnected, setIsConnected] = useState(false);
 
   const [arrayListNFT, setArrayListNFT] = useState([]);
-  const [uri, setUri] = useState("");
+  const [images, setImages] = useState([]);
 
   const [myNft, setMyNft] = useState([]);
   const [marketplaces, setMarketplaces] = useState([]);
@@ -106,7 +106,6 @@ function ConnectWallet() {
       if (!window.ethereum) {
         sethaveMetamask(false);
       }
-
       const accounts = await provider.send("eth_requestAccounts", []);
       setAccountAddress(ethers.utils.getAddress(accounts[0]));
       let balanceAddress = await provider.getBalance(accounts[0]);
@@ -115,25 +114,6 @@ function ConnectWallet() {
     } catch (err) {
       setIsConnected(false);
     }
-  };
-
-  const uploadToIPFS = async (event) => {
-    event.preventDefault();
-    const form = event.target;
-
-    const files = form[0].files;
-
-    if (!files || files.length === 0) {
-      return alert("No files were selected");
-    }
-
-    const file = files[0];
-    // upload files
-    const result = await ipfs.add(file);
-    const url = "https://ngandt.infura-ipfs.io/ipfs/" + result.path;
-    setUri(url);
-    form.reset();
-    
   };
 
   const fetchMyNft = async () => {
@@ -194,20 +174,41 @@ function ConnectWallet() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const safeMint = async () => {
-    try {      
-      let nftTx = await nftContract.safeMint(accountAddress, uri);
+  const safeMint = async (event) => {
+    try {
+      event.preventDefault();
+      const form = event.target;
+  
+      const files = form[0].files;
+  
+      if (!files === 0) {
+        return alert("No files were selected");
+      }
+  
+      const file = files[0];
+      // upload files
+      const result = await ipfs.add(file);
+      setImages([
+        ...images,
+        {
+          cid: result.cid,
+          path: result.path
+        }
+      ]);
+      let url = "https://ngandt.infura-ipfs.io/ipfs/" + result.path;
+
+      let nftTx = await nftContract.safeMint(accountAddress, url);
       let tx = await nftTx.wait();
 
       console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-      window.location.reload();
+      form.reset();
 
     } catch (err) {
       console.log(err);
     }
   };
 
-  const listNft = async (event) => {
+  const listNft = async () => {
     try {
       let price = ethers.utils.parseUnits(arrayListNFT.price, "ether");
       let marketTx = await marketplaceContract.listImageNFT(
@@ -218,8 +219,6 @@ function ConnectWallet() {
 
       let tx = await marketTx.wait();
       console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-
-      window.location.reload();
     } catch (err) {
       console.log(err);
     }
@@ -237,8 +236,6 @@ function ConnectWallet() {
   
         let tx = await buyTx.wait();
         console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-        
-        window.location.reload();
       }
     } catch (err) {
       console.log(err);
@@ -251,7 +248,6 @@ function ConnectWallet() {
       let tx = await cancelTx.wait();
       
       console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-      window.location.reload();
     } catch (err) {
       console.log(err);
     }
@@ -307,7 +303,7 @@ function ConnectWallet() {
                         >
                           <ListItem>Create your NFT</ListItem>
                           <ListItem>
-                            <form onSubmit={uploadToIPFS}>
+                            <form onSubmit={safeMint}>
                               <input
                                 id="file-upload"
                                 type="file"
@@ -315,11 +311,11 @@ function ConnectWallet() {
                                 accept="image/*"
                               />
 
-                              <Button variant="contained" type="submit">
+                              {/* <Button variant="contained" type="submit">
                                 Upload image
-                              </Button>
+                              </Button> */}
 
-                              <Button variant="contained" onClick={safeMint}>
+                              <Button variant="contained" type="submit">
                                 Mint
                               </Button>
                             </form>
