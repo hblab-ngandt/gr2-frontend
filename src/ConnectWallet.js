@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { ethers } from "ethers";
+import { ethers, providers } from "ethers";
 import "./App.css";
 import { Button, Box, Tab, Tabs, Typography } from "@mui/material";
 import ListItem from "@material-ui/core/ListItem";
@@ -47,6 +47,7 @@ const authorization = "Basic " + btoa(projectId + ":" + projectKey);
 function ConnectWallet() {
   const [haveMetamask, sethaveMetamask] = useState(true);
   const [accountAddress, setAccountAddress] = useState();
+  const [balance, setBalance] = useState();
   const [tabIndex, setTabIndex] = useState(0);
 
   const [isConnected, setIsConnected] = useState(false);
@@ -85,6 +86,8 @@ function ConnectWallet() {
       }
       const accounts = await provider.send("eth_requestAccounts", []);
       setAccountAddress(ethers.utils.getAddress(accounts[0]));
+      let balanceAddress = await provider.getBalance(accounts[0]);
+      setBalance(ethers.utils.formatEther(balanceAddress));
       setIsConnected(true);
     } catch (err) {
       setIsConnected(false);
@@ -199,18 +202,22 @@ function ConnectWallet() {
     }
   };
 
+  console.log('balance: ', balance);
   const buyNft = async (item) => {
     try {
       let valueInBnb = ethers.utils.formatEther(item.price.toString());
-
-      let buyTx = await marketplaceContract.buyImageNFT(item.marketItemId, {
-        value: ethers.utils.parseEther(valueInBnb),
-      });
-
-      let tx = await buyTx.wait();
-      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-      
-      window.location.reload();
+      if (balance < valueInBnb)
+        return;
+      else {
+        let buyTx = await marketplaceContract.buyImageNFT(item.marketItemId, {
+          value: ethers.utils.parseEther(valueInBnb),
+        });
+  
+        let tx = await buyTx.wait();
+        console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
+        
+        window.location.reload();
+      }
     } catch (err) {
       console.log(err);
     }
