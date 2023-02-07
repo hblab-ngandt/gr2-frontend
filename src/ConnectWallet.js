@@ -20,6 +20,8 @@ const {
   REACT_APP_MARKETPLACE_ADDRESS,
 } = process.env;
 
+const invalidAddress = "0x0000000000000000000000000000000000000000";
+
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
 const nftAddress = REACT_APP_NFT_ADDRESS;
@@ -138,19 +140,21 @@ function ConnectWallet() {
       let temp = [];
 
       for (let i = 1; i < tx.length; i++) {
-        let tokenId = Web3.utils.hexToNumber(tx[i].tokenId);
-        let uri = await nftContract.tokenURI(tokenId);
-
-        const data = {
-          marketItemId: Web3.utils.hexToNumber(tx[i].marketItemId),
-          nftContract: tx[i].nftContract,
-          owner: tx[i].owner,
-          price: Web3.utils.hexToNumber(tx[i].price),
-          seller: tx[i].seller,
-          tokenId: tokenId,
-          tokenUri: uri
+        if (tx[i].owner !== invalidAddress) {
+          let tokenId = Web3.utils.hexToNumber(tx[i].tokenId);
+          let uri = await nftContract.tokenURI(tokenId);
+  
+          const data = {
+            marketItemId: Web3.utils.hexToNumber(tx[i].marketItemId),
+            nftContract: tx[i].nftContract,
+            owner: tx[i].owner,
+            price: Web3.utils.hexToNumber(tx[i].price),
+            seller: tx[i].seller,
+            tokenId: tokenId,
+            tokenUri: uri
+          }
+          temp.push(data);
         }
-        temp.push(data);
       }
       setMarketplaces(temp);
     } catch (e) {
