@@ -84,7 +84,7 @@ function ConnectWallet() {
             method: "wallet_addEthereumChain",
             params: [
               {
-                chainName: 'Polygon Mainnet',
+                chainName: 'Binance Smart Chain Testnet',
                 chainId: '0x61',
                 nativeCurrency: { name: 'BNB', decimals: 18, symbol: 'BNB' },
                 rpcUrls: ['https://data-seed-prebsc-1-s3.binance.org:8545']
@@ -107,21 +107,6 @@ function ConnectWallet() {
         sethaveMetamask(false);
       }
 
-      // await window.ethereum.request({
-      //   method: "wallet_switchEthereumChain",
-      //   params: [{
-      //     chainId: "0x61",
-      //     // rpcUrls: ["https://data-seed-prebsc-1-s3.binance.org:8545"],
-      //     // chainName: "Binance Smart Chain Testnet",
-      //     // nativeCurrency: {
-      //     //   name: "BNB",
-      //     //   symbol: "BNB",
-      //     //   decimals: 18
-      //     // },
-      //     // blockExplorerUrls: ["https://testnet.bscscan.com/"]
-      //   }]
-      // });
-
       const accounts = await provider.send("eth_requestAccounts", []);
       setAccountAddress(ethers.utils.getAddress(accounts[0]));
       let balanceAddress = await provider.getBalance(accounts[0]);
@@ -131,7 +116,6 @@ function ConnectWallet() {
       setIsConnected(false);
     }
   };
-  console.log('fsfsd')
 
   const uploadToIPFS = async (event) => {
     event.preventDefault();
