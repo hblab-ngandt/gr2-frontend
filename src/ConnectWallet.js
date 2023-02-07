@@ -131,7 +131,7 @@ function ConnectWallet() {
       console.log(e);
     }
   }
-  console.log(myNft)
+
   const fetchMarketplace = async () => {
     try {
       let tx = await marketplaceContract.getListedNFT();
@@ -179,10 +179,11 @@ function ConnectWallet() {
 
   const listNft = async (event) => {
     try {
+      let price = ethers.utils.parseUnits(arrayListNFT.price, "ether");
       let marketTx = await marketplaceContract.listImageNFT(
         nftAddress,
         arrayListNFT.tokenId,
-        arrayListNFT.price
+        price
       );
 
       let tx = await marketTx.wait();
@@ -196,8 +197,7 @@ function ConnectWallet() {
 
   const buyNft = async (item) => {
     try {
-      let value = item.price * Math.pow(10, 18);
-      let valueInBnb = ethers.utils.formatEther(value.toString());
+      let valueInBnb = ethers.utils.formatEther(item.price.toString());
 
       let buyTx = await marketplaceContract.buyImageNFT(item.marketItemId, {
         value: ethers.utils.parseEther(valueInBnb),
@@ -371,7 +371,7 @@ function ConnectWallet() {
                                     </a> 
                                   </ListItem>
                                   
-                                  <ListItem>Price : {item.price}</ListItem>
+                                  <ListItem>Price : {ethers.utils.formatEther(item.price)}</ListItem>
 
                                   <ListItem>
                                     <Button
@@ -442,7 +442,7 @@ function ConnectWallet() {
                                         </a>
                                       </ListItem>
                                     )}
-                                    <ListItem>Price : {item.price}</ListItem>
+                                    <ListItem>Price : {ethers.utils.formatEther(item.price)}</ListItem>
 
                                     {accountAddress === item.seller ? (
                                       <ListItem>
