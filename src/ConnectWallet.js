@@ -138,7 +138,7 @@ function ConnectWallet() {
     } catch (e) {
       console.log(e);
     }
-  }
+  };
 
   const fetchMarketplace = async () => {
     try {
@@ -166,7 +166,7 @@ function ConnectWallet() {
     } catch (e) {
       console.log(e);
     }
-  }
+  };
 
   useEffect(() => {
     fetchMyNft();
