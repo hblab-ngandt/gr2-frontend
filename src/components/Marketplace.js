@@ -2,8 +2,10 @@ import { React, useEffect, useState } from "react";
 import ListItem from "@material-ui/core/ListItem";
 import Grid from "@mui/material/Grid";
 import Web3 from "web3";
-import { Button } from "@mui/material";
 import { ethers } from "ethers";
+
+import CancelSellNft from "./CancelSellNft";
+import BuyNft from "./BuyNft";
 
 import {
   invalidAddress,
@@ -16,7 +18,6 @@ export default function Marketplace (props) {
   const [marketplaces, setMarketplaces] = useState([]);
   let address = props.address;
   let balance = props.balance;
-
   const fetchMarketplace = async () => {
     try {
       let tx = await marketplaceContract.getListedNFT();
@@ -49,35 +50,6 @@ export default function Marketplace (props) {
     fetchMarketplace();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const buyNft = async (item) => {
-    try {
-      let valueInBnb = ethers.utils.formatEther(item.price.toString());
-      if (balance < valueInBnb)
-        return;
-      else {
-        let buyTx = await marketplaceContract.buyImageNFT(item.marketItemId, {
-          value: ethers.utils.parseEther(valueInBnb),
-        });
-  
-        let tx = await buyTx.wait();
-        console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const cancelNft = async (item) => {
-    try {
-      let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketItemId);
-      let tx = await cancelTx.wait();
-      
-      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   return (
     <>
@@ -130,26 +102,9 @@ export default function Marketplace (props) {
               <ListItem>Price : {ethers.utils.formatEther(item.price)}</ListItem>
 
               {address === item.seller ? (
-                <ListItem>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    style={{ display: "inline" }}
-                    onClick={() => cancelNft(item)}
-                  >
-                    Cancel
-                  </Button>
-                </ListItem>
+                <CancelSellNft marketItemId={item.marketItemId}/>
               ) : (
-                <ListItem>
-                  <Button
-                    variant="contained"
-                    style={{ display: "inline" }}
-                    onClick={() => buyNft(item)}
-                  >
-                    Buy
-                  </Button>
-                </ListItem>
+                <BuyNft price={item.price} marketItemId={item.marketItemId} balance={balance} />
               )}
           </Grid>
           ))}

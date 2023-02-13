@@ -2,13 +2,14 @@ import { React, useEffect, useState } from "react";
 import ListItem from "@material-ui/core/ListItem";
 import Grid from "@mui/material/Grid";
 import Web3 from "web3";
-import { Button } from "@mui/material";
 import { ethers } from "ethers";
 import TextField from "@mui/material/TextField";
 
+import SellNft from "./SellNft";
+import CancelSellNft from "./CancelSellNft";
+
 import {
   invalidAddress,
-  nftAddress,
   nftContract,
   marketplaceContract
 } from "../settings/Constant";
@@ -17,33 +18,6 @@ export default function MyNft (props) {
   const [myNft, setMyNft] = useState([]);
   const [marketplaces, setMarketplaces] = useState([]);
   const [arrayListNFT, setArrayListNFT] = useState([]);
-
-  const listNft = async () => {
-    try {
-      let price = ethers.utils.parseUnits(arrayListNFT.price, "ether");
-      let marketTx = await marketplaceContract.listImageNFT(
-        nftAddress,
-        arrayListNFT.tokenId,
-        price
-      );
-
-      let tx = await marketTx.wait();
-      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const cancelNft = async (item) => {
-    try {
-      let cancelTx = await marketplaceContract.cancelListImageNFT(item.marketItemId);
-      let tx = await cancelTx.wait();
-      
-      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const fetchMyNft = async () => {
     try {
@@ -138,15 +112,7 @@ export default function MyNft (props) {
             />
           </ListItem>
 
-          <ListItem>
-            <Button
-              variant="contained"
-              style={{ display: "inline" }}
-              onClick={listNft}
-            >
-              List
-            </Button>
-          </ListItem>
+          <SellNft price={arrayListNFT.price} tokenId={item.tokenId} />
         </Grid>
       </>
       ))}
@@ -185,21 +151,11 @@ export default function MyNft (props) {
             
             <ListItem>Price : {ethers.utils.formatEther(item.price)}</ListItem>
 
-            <ListItem>
-              <Button
-                variant="contained"
-                color="error"
-                style={{ display: "inline" }}
-                onClick={() => cancelNft(item)}
-                >
-                Cancel
-              </Button>
-            </ListItem>
+            <CancelSellNft marketItemId={item.marketItemId} />
           </Grid>
         ))}
       </>
       ) : null} 
-
     </>
   );
 }
