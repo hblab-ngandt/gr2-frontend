@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
-import ImageToken from "../ImageToken.json";
-import ImageMarketplace from "../ImageMarketplace.json";
+import ImageToken from "./ImageToken.json";
+import ImageMarketplace from "./ImageMarketplace.json";
 
 const {
   REACT_APP_IPFS_PROJECT_ID,

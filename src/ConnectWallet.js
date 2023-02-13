@@ -99,15 +99,13 @@ function ConnectWallet() {
                         </Grid>
                       )}
                       {tabIndex === 1 && (
-                        <>
-                          <Grid
-                            container
-                            rowSpacing={1}
-                            columnSpacing={{ xs: 1, sm: 1, md: 1 }}
-                          >
-                            <Marketplace balance={balance} address={accountAddress} />
-                          </Grid>
-                        </>
+                        <Grid
+                          container
+                          rowSpacing={1}
+                          columnSpacing={{ xs: 1, sm: 1, md: 1 }}
+                        >
+                          <Marketplace balance={balance} address={accountAddress} />
+                        </Grid>
                       )}
                     </Box>
                   </Box>

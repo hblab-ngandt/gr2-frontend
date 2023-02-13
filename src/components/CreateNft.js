@@ -64,7 +64,7 @@ export default function CreateNft (props) {
             multiple
             accept="image/*" />
           <Button variant="contained" type="submit">
-            Mint
+            Create
           </Button>
         </form>
       </ListItem>
