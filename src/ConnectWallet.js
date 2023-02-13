@@ -1,21 +1,19 @@
 import { React, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import "./App.css";
-import { Button, Box, Tab, Tabs, Typography } from "@mui/material";
+import { Button, Box, Tab, Tabs } from "@mui/material";
 import ListItem from "@material-ui/core/ListItem";
 import Grid from "@mui/material/Grid";
-import TextField from "@mui/material/TextField";
-import { create } from "ipfs-http-client";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
 import Web3 from "web3";
 
 import ImageToken from "./ImageToken.json";
 import ImageMarketplace from "./ImageMarketplace.json";
+import NavBar from "./components/NavBar";
+import CreateNft from "./components/CreateNft";
+import MyNft from "./components/MyNft";
+
 
 const {
-  REACT_APP_IPFS_PROJECT_ID,
-  REACT_APP_IPFS_PROJECT_KEY,
   REACT_APP_NFT_ADDRESS,
   REACT_APP_MARKETPLACE_ADDRESS,
 } = process.env;
@@ -40,9 +38,6 @@ const marketplaceContract = new ethers.Contract(
   signer
 );
 
-const projectId = REACT_APP_IPFS_PROJECT_ID;
-const projectKey = REACT_APP_IPFS_PROJECT_KEY;
-const authorization = "Basic " + btoa(projectId + ":" + projectKey);
 
 function ConnectWallet() {
   const [haveMetamask, sethaveMetamask] = useState(true);
@@ -51,19 +46,7 @@ function ConnectWallet() {
   const [tabIndex, setTabIndex] = useState(0);
 
   const [isConnected, setIsConnected] = useState(false);
-
-  const [arrayListNFT, setArrayListNFT] = useState([]);
-  const [images, setImages] = useState([]);
-
-  const [myNft, setMyNft] = useState([]);
   const [marketplaces, setMarketplaces] = useState([]);
-
-  const ipfs = create({
-    url: "https://ipfs.infura.io:5001/api/v0",
-    headers: {
-      authorization,
-    },
-  });
 
   useEffect(() => {
     const checkAvailableMetamask = async () => {
@@ -116,30 +99,6 @@ function ConnectWallet() {
     }
   };
 
-  const fetchMyNft = async () => {
-    try {
-      let txNftContract = await nftContract.getCounterToken();
-      let numberToken = Web3.utils.hexToNumber(txNftContract);
-      let temp = [];
-
-      for (let i = 0; i < numberToken; i++) {
-        let owners = await nftContract.ownerOf(i);
-        if (accountAddress === owners) {
-          let uri = await nftContract.tokenURI(i);
-          
-          const data = {
-            tokenId: i,
-            tokenUri: uri
-          }
-          temp.push(data);
-        }
-      }
-      setMyNft(temp);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   const fetchMarketplace = async () => {
     try {
       let tx = await marketplaceContract.getListedNFT();
@@ -169,60 +128,9 @@ function ConnectWallet() {
   };
 
   useEffect(() => {
-    fetchMyNft();
     fetchMarketplace();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const safeMint = async (event) => {
-    try {
-      event.preventDefault();
-      const form = event.target;
-  
-      const files = form[0].files;
-  
-      if (!files === 0) {
-        return alert("No files were selected");
-      }
-  
-      const file = files[0];
-      // upload files
-      const result = await ipfs.add(file);
-      setImages([
-        ...images,
-        {
-          cid: result.cid,
-          path: result.path
-        }
-      ]);
-      let url = "https://ngandt.infura-ipfs.io/ipfs/" + result.path;
-
-      let nftTx = await nftContract.safeMint(accountAddress, url);
-      let tx = await nftTx.wait();
-
-      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-      form.reset();
-
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const listNft = async () => {
-    try {
-      let price = ethers.utils.parseUnits(arrayListNFT.price, "ether");
-      let marketTx = await marketplaceContract.listImageNFT(
-        nftAddress,
-        arrayListNFT.tokenId,
-        price
-      );
-
-      let tx = await marketTx.wait();
-      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const buyNft = async (item) => {
     try {
@@ -260,32 +168,7 @@ function ConnectWallet() {
           <div>
             {isConnected ? (
               <div>
-                <AppBar position="static">
-                  <Toolbar>
-                    <Typography
-                      variant="h6"
-                      component="div"
-                      sx={{ flexGrow: 1 }}
-                    >
-                      Account Address
-                    </Typography>
-                    <a
-                      style={{ textDecoration: "none", color: "white" }}
-                      target="_blank"
-                      href={`https://testnet.bscscan.com/address/${accountAddress}`}
-                      rel="noreferrer"
-                    >
-                      <Typography
-                        variant="h6"
-                        component="div"
-                        sx={{ flexGrow: 1 }}
-                      >
-                        {accountAddress}
-                      </Typography>
-                    </a>
-                  </Toolbar>
-                </AppBar>
-
+                <NavBar address={accountAddress}/>
                 <ListItem>
                   <Box>
                     <Box>
@@ -301,120 +184,8 @@ function ConnectWallet() {
                           rowSpacing={1}
                           columnSpacing={{ xs: 1, sm: 1, md: 1 }}
                         >
-                          <ListItem>Create your NFT</ListItem>
-                          <ListItem>
-                            <form onSubmit={safeMint}>
-                              <input
-                                id="file-upload"
-                                type="file"
-                                multiple
-                                accept="image/*"
-                              />
-
-                              {/* <Button variant="contained" type="submit">
-                                Upload image
-                              </Button> */}
-
-                              <Button variant="contained" type="submit">
-                                Mint
-                              </Button>
-                            </form>
-                          </ListItem>
-
-                          <ListItem>My NFT</ListItem>
-                          {myNft.map((item) => (
-                            <>
-                              <Grid item xs={3} key={item.tokenId}>
-                                <ListItem>
-                                  <a 
-                                    href={item.tokenUri}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >
-                                  <img
-                                    src={item.tokenUri}
-                                    alt="imge"
-                                    style={{ width: 150, height: 250 }}
-                                  />
-                                  </a>
-                                </ListItem>
-
-                                <ListItem>
-                                  <TextField
-                                    id="list-nft"
-                                    label="Price"
-                                    variant="outlined"
-                                    style={{ display: "inline" }}
-                                    onChange={(e) =>
-                                    setArrayListNFT({
-                                      tokenId: item.tokenId,
-                                      price: e.target.value,
-                                      uri: item.tokenUri,
-                                    })}
-                                  />
-                                </ListItem>
-                            
-                                <ListItem>
-                                  <Button
-                                    variant="contained"
-                                    style={{ display: "inline" }}
-                                    onClick={listNft}
-                                  >
-                                    List
-                                  </Button>
-                                </ListItem>
-                              </Grid>
-                            </>
-                          ))}
-                          
-                          {/* Marketplace my nft */}
-                          {marketplaces.length > 0 ? (
-                            <>
-                              {marketplaces.filter((item) => item.seller === accountAddress).map((item) => (
-                                <Grid item xs={3} key={item.tokenId}>
-                                  <ListItem>
-                                    <a
-                                      href={item.tokenUri}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                    <img
-                                      src={item.tokenUri}
-                                      alt="imge"
-                                      style={{
-                                        width: 150,
-                                        height: 250,
-                                        paddingRight: 60,
-                                      }}
-                                    />
-                                    </a>
-                                  </ListItem>
-                                  <ListItem>
-                                    <a 
-                                      style={{ textDecoration: "none"}}
-                                      href={`https://testnet.bscscan.com/address/${item.seller}`}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                      Seller : You 
-                                    </a> 
-                                  </ListItem>
-                                  
-                                  <ListItem>Price : {ethers.utils.formatEther(item.price)}</ListItem>
-
-                                  <ListItem>
-                                    <Button
-                                      variant="contained"
-                                      style={{ display: "inline" }}
-                                      onClick={() => cancelNft(item)}
-                                      >
-                                      Cancel
-                                    </Button>
-                                  </ListItem>
-                                </Grid>
-                              ))}
-                            </>
-                          ) : null}                          
+                          <CreateNft address={accountAddress}/>
+                          <MyNft address={accountAddress} />
                         </Grid>
                       )}
                       {tabIndex === 1 && (
