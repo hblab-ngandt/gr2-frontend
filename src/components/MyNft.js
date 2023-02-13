@@ -188,6 +188,7 @@ export default function MyNft (props) {
             <ListItem>
               <Button
                 variant="contained"
+                color="error"
                 style={{ display: "inline" }}
                 onClick={() => cancelNft(item)}
                 >
