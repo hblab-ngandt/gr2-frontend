@@ -79,7 +79,6 @@ export default function MyNft (props) {
 
   return (
     <>
-      <ListItem>My NFT</ListItem>
       {myNft.map((item) => (
         <>
         <Grid item xs={3} key={item.tokenId}>
@@ -133,7 +132,7 @@ export default function MyNft (props) {
                 style={{
                   width: 150,
                   height: 250,
-                  paddingRight: 60,
+                  paddingRight: 100,
                 }}
               />
               </a>
