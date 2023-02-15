@@ -18,6 +18,7 @@ export default function Marketplace (props) {
   const [marketplaces, setMarketplaces] = useState([]);
   let address = props.address;
   let balance = props.balance;
+  
   const fetchMarketplace = async () => {
     try {
       let tx = await marketplaceContract.getListedNFT();

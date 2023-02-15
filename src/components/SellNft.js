@@ -13,7 +13,7 @@ export default function SellNft (props) {
   let priceInHex = props.price;
   let tokenId = props.tokenId;
 
-  const listNft = async () => {
+  const sellNft = async () => {
     try {
       let price = ethers.utils.parseUnits(priceInHex, "ether");
       let marketTx = await marketplaceContract.listImageNFT(
@@ -34,7 +34,7 @@ export default function SellNft (props) {
       <Button
         variant="contained"
         style={{ display: "inline" }}
-        onClick={listNft}
+        onClick={sellNft}
       >
         List
       </Button>

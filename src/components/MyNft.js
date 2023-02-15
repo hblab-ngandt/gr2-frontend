@@ -15,6 +15,7 @@ import {
 } from "../settings/Constant";
 
 export default function MyNft (props) {
+  
   const [myNft, setMyNft] = useState([]);
   const [marketplaces, setMarketplaces] = useState([]);
   const [arrayListNFT, setArrayListNFT] = useState([]);

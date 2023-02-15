@@ -11,6 +11,7 @@ import {
 import ListItem from "@material-ui/core/ListItem";
 
 export default function CreateNft (props) {
+  
   const [images, setImages] = useState([]);
   const [demo, setDemo] = useState({ preview: "", raw: "" });
   
