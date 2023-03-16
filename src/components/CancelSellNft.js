@@ -1,6 +1,4 @@
 import { React } from "react";
-import ListItem from "@material-ui/core/ListItem";
-import { Button } from "@mui/material";
 
 import {
   marketplaceContract
@@ -21,15 +19,8 @@ export default function CancelSellNft (props) {
   };
 
   return (
-    <ListItem>
-      <Button
-        variant="contained"
-        color="error"
-        style={{ display: "inline" }}
-        onClick={() => cancelNft()}
-      >
-        Cancel
-      </Button>
-  </ListItem>
+    <button className="btn btn-danger mb-0" onClick={() => cancelNft()}>
+      Cancel
+    </button>
   );
 }

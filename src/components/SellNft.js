@@ -30,14 +30,8 @@ export default function SellNft (props) {
   };
 
   return (
-    <ListItem>
-      <Button
-        variant="contained"
-        style={{ display: "inline" }}
-        onClick={sellNft}
-      >
-        List
-      </Button>
-    </ListItem>
+    <button className="btn btn-primary" onClick={() => sellNft()}>
+      Buy
+    </button>
   );
 }

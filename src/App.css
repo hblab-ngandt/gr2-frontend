@@ -53,6 +53,11 @@
   box-sizing: border-box;
 }
 
+.card-img-top {
+  height: 40vh;
+  object-fit: cover;
+  }
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

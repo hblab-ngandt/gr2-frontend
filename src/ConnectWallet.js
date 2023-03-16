@@ -9,7 +9,6 @@ import NavBar from "./components/NavBar";
 import CreateNft from "./components/CreateNft";
 import MyNft from "./components/MyNft";
 import Marketplace from "./components/Marketplace";
-
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
 function ConnectWallet() {
@@ -89,23 +88,17 @@ function ConnectWallet() {
                     </Box>
                     <Box sx={{ padding: 2 }}>
                       {tabIndex === 0 && (
-                        <Grid
-                          container
-                          rowSpacing={1}
-                          columnSpacing={{ xs: 1, sm: 1, md: 1 }}
-                        >
-                          <CreateNft address={accountAddress}/>
-                          <MyNft address={accountAddress} />
-                        </Grid>
+                        <section style={{backgroundColor: 'eee'}}>
+                          <div class="container py-5">
+                            <div class="row">
+                              <CreateNft address={accountAddress}/>
+                              <MyNft address={accountAddress} />
+                            </div>
+                          </div>
+                        </section>
                       )}
                       {tabIndex === 1 && (
-                        <Grid
-                          container
-                          rowSpacing={1}
-                          columnSpacing={{ xs: 1, sm: 1, md: 1 }}
-                        >
                           <Marketplace balance={balance} address={accountAddress} />
-                        </Grid>
                       )}
                     </Box>
                   </Box>

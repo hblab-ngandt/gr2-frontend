@@ -1,7 +1,5 @@
 import { React } from "react";
-import ListItem from "@material-ui/core/ListItem";
 import { ethers } from "ethers";
-import { Button } from "@mui/material";
 
 import {
   marketplaceContract
@@ -32,14 +30,8 @@ export default function BuyNft (props) {
   };
 
   return (
-    <ListItem>
-    <Button
-      variant="contained"
-      style={{ display: "inline" }}
-      onClick={() => buyNft()}
-    >
+    <button className="btn btn-primary" onClick={() => buyNft()}>
       Buy
-    </Button>
-  </ListItem>
+    </button>
   );
 }
