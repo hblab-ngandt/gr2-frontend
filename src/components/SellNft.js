@@ -1,7 +1,5 @@
 import { React } from "react";
-import ListItem from "@material-ui/core/ListItem";
 import { ethers } from "ethers";
-import { Button } from "@mui/material";
 
 import {
   nftAddress,
@@ -30,8 +28,13 @@ export default function SellNft (props) {
   };
 
   return (
-    <button className="btn btn-primary" onClick={() => sellNft()}>
-      Buy
-    </button>
+    <>
+      <div class=""></div>
+      <div class="mb-0">
+        <button className="btn btn-primary mb-0" onClick={() => sellNft()}>
+          Sell
+        </button>
+      </div>
+    </>
   );
 }

@@ -95,13 +95,13 @@ export default function CreateNft (props) {
         </div>
         <div class="card-body">
           <div class="d-flex justify-content-between mb-3">
-            <h6 class="mb-0">Title</h6>
+            <h5 class="mb-0">Title</h5>
             <div class="form-group mb-0">
               <input type="text" class="form-control" style={{width: '9rem'}}/>
             </div>
           </div>
 
-          <div class="d-flex justify-content-between py-2">
+          <div class="d-flex justify-content-between">
           </div>
 
           <div class="d-flex justify-content-between mb-2">
@@ -116,6 +116,6 @@ export default function CreateNft (props) {
         </div>
       </form>
     </div>
-  </div>
+    </div>
   );
 }

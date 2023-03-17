@@ -10,7 +10,6 @@ import {
   nftContract,
   marketplaceContract
 } from "../settings/Constant";
-import SellNft from "./SellNft";
 
 export default function Marketplace(props) {
 
