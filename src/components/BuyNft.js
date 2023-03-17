@@ -30,8 +30,13 @@ export default function BuyNft (props) {
   };
 
   return (
-    <button className="btn btn-primary" onClick={() => buyNft()}>
-      Buy
-    </button>
+    <>
+      <div class=""></div>
+      <div class="mb-0">
+        <button className="btn btn-primary" onClick={() => buyNft()}>
+          Buy
+        </button>
+      </div>
+    </>
   );
 }

@@ -2,7 +2,6 @@ import { React, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { Button, Box, Tab, Tabs } from "@mui/material";
 import ListItem from "@material-ui/core/ListItem";
-import Grid from "@mui/material/Grid";
 import "./App.css";
 
 import NavBar from "./components/NavBar";

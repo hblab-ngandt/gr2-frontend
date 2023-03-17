@@ -82,8 +82,11 @@ export default function Marketplace(props) {
                     </div>
         
                     <div class="d-flex justify-content-between mb-2">
-                      <SellNft price={item.price} marketItemId={item.marketItemId} balance={balance} />
-                      <CancelSellNft marketItemId={item.marketItemId}/>
+                    {address === item.seller ? (
+                <CancelSellNft marketItemId={item.marketItemId}/>
+              ) : (
+                <BuyNft price={item.price} marketItemId={item.marketItemId} balance={balance} />
+              )}
                     </div>
                   </div>
                 </div>

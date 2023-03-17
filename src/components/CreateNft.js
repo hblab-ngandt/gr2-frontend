@@ -101,45 +101,21 @@ export default function CreateNft (props) {
             </div>
           </div>
 
-          <div class="d-flex justify-content-between mb-3">
-            <h6 class="mb-0">Price</h6>
-            <div class="form-group mb-0">
-              <input type="text" class="form-control" style={{width: '9rem'}}/>
+          <div class="d-flex justify-content-between py-2">
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <div class=""></div>
+            <div class="mb-0">
+              <button className="btn btn-primary" type="submit" >
+                Create
+              </button>
             </div>
           </div>
 
-          <div class="d-flex justify-content-center">
-            <button className="btn btn-primary" type="submit" >
-              Create
-            </button>
-          </div>
         </div>
       </form>
     </div>
   </div>
-    // <>
-    // <ListItem></ListItem>
-    //   <form onSubmit={createNft}>
-    //     <label htmlFor="upload-button">
-    //       {demo.preview ? (
-    //         <img src={demo.preview} alt="img-upload" width="150" height="250" />
-    //       ) : (
-    //         <img src={noImage} alt="img-not-availabel" width="150" height="250" />
-    //       )}
-    //     </label>
-    //     <input
-    //       type="file"
-    //       multiple
-    //       hidden
-    //       accept="image/*"
-    //       id="upload-button"
-    //       onChange={handleChange}
-    //     />
-    //     <br />
-    //     <Button variant="contained" type="submit">
-    //       Create
-    //     </Button>
-    //   </form>
-    // </>
   );
 }

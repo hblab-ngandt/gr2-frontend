@@ -19,8 +19,13 @@ export default function CancelSellNft (props) {
   };
 
   return (
-    <button className="btn btn-danger mb-0" onClick={() => cancelNft()}>
-      Cancel
-    </button>
+    <>
+      <div class=""></div>
+      <div class="mb-0">
+        <button className="btn btn-danger" onClick={() => cancelNft()}>
+          Cancel
+        </button>
+      </div>
+    </>
   );
 }
