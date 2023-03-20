@@ -2,6 +2,7 @@ import { React, useEffect, useState } from "react";
 import Web3 from "web3";
 import { ethers } from "ethers";
 
+import CreateNft from "./CreateNft";
 import SellNft from "./SellNft";
 import CancelSellNft from "./CancelSellNft";
 
@@ -78,121 +79,90 @@ export default function MyNft (props) {
   }, []);
 
   return (
-    // <>
-    //   {myNft.map((item) => (
-    //     <>
-    //     <Grid item xs={3} key={item.tokenId}>
-    //       <ListItem>
-    //         <a 
-    //           href={item.tokenUri}
-    //           target="_blank"
-    //           rel="noreferrer"
-    //         >
-    //         <img
-    //           src={item.tokenUri}
-    //           alt="imge"
-    //           style={{ width: 150, height: 250 }}
-    //         />
-    //         </a>
-    //       </ListItem>
-
-    //       <ListItem>
-    //         <TextField
-    //           id="list-nft"
-    //           label="Price"
-    //           variant="outlined"
-    //           style={{ display: "inline" }}
-    //           onChange={(e) =>
-    //             setArrayListNFT({
-    //               tokenId: item.tokenId,
-    //               price: e.target.value,
-    //               uri: item.tokenUri,
-    //             })}
-    //         />
-    //       </ListItem>
-
-    //       <SellNft price={arrayListNFT.price} tokenId={item.tokenId} />
-    //     </Grid>
-    //   </>
-    //   ))}
-
   <>
-  {myNft.map((item) =>(
-    <div class="col-md-4 col-lg-4 mb-4 mb-lg-0">
-    <div class="card">
-      <div class="d-flex justify-content-between p-3">
-        <p class="lead mb-0">Name Item</p>
-        <div
-          class="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
-          style={{ width: '35px', height: '35px' }}>
-          <p class="text-white mb-0 small">x4</p>
+    <section>
+      <div className="container py-5">
+        <div className="row">
+        <CreateNft />
+          {myNft.map((item) =>(
+            <div className="col-md-4 col-lg-4 mb-4 mb-lg-0">
+            <div className="card">
+              <div className="d-flex justify-content-between p-3">
+                <p className="lead mb-0">Name Item</p>
+                <div
+                  className="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
+                  style={{ width: '35px', height: '35px' }}>
+                  <p className="text-white mb-0 small">x4</p>
+                </div>
+              </div>
+              <img src={item.tokenUri}
+                className="card-img-top" alt="Laptop" />
+              <div className="card-body">
+                <div className="d-flex justify-content-between mb-3">
+                  <h5 className="mb-0">Price</h5>
+                    <div className="form-group">
+                      <input 
+                        type="text"
+                        className="form-control"
+                        style={{width: '9rem'}}
+                        onChange={(e) =>
+                          setArrayListNFT({
+                            tokenId: item.tokenId,
+                            price: e.target.value,
+                            uri: item.tokenUri
+                          })}
+                        />
+                    </div>
+                </div>
+
+                <div className="d-flex justify-content-between mb-2">
+                  <SellNft price={arrayListNFT.price} tokenId={item.tokenId}/>
+                </div>
+              </div>
+            </div>
+            </div>
+          ))}
+
+          {marketplaces.length > 0 ? (
+            <>
+            {marketplaces.map((item) => (
+              <div className="col-md-4 col-lg-4 mb-4 mb-lg-0">
+                <div className="card">
+                  <div className="d-flex justify-content-between p-3">
+                    <p className="lead mb-0">Name Item</p>
+                    <div
+                      className="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
+                      style={{ width: '35px', height: '35px' }}>
+                      <p className="text-white mb-0 small">x4</p>
+                    </div>
+                  </div>
+                  <img src={item.tokenUri}
+                    className="card-img-top" alt="Laptop" />
+                  <div className="card-body">
+                    <div className="d-flex justify-content-between">
+                      <p className=""><a href="#!" className="text-muted" style={{ textDecoration: 'none'}}>Seller</a></p>
+                      <p className="small">You</p>
+                    </div>
+
+                    <div className="d-flex justify-content-between mb-3">
+                      <h5 className="mb-0">Price</h5>
+                      <h5 className="text-dark mb-0">{ethers.utils.formatEther(item.price)}</h5>
+                    </div>
+
+                    <div className="d-flex justify-content-between mb-2">
+                    {address === item.seller ? (
+                      <CancelSellNft marketItemId={item.marketItemId}/>
+                    ) : null}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            </>
+          ) : null}
         </div>
       </div>
-      <img src={item.tokenUri}
-        class="card-img-top" alt="Laptop" />
-      <div class="card-body">
-        <div class="d-flex justify-content-between mb-3">
-          <h5 class="mb-0">Price</h5>
-            <div class="form-group">
-              <input 
-                type="text"
-                class="form-control"
-                style={{width: '9rem'}}
-                onChange={(e) =>
-                  setArrayListNFT({
-                    tokenId: item.tokenId,
-                    price: e.target.value,
-                    uri: item.tokenUri
-                  })}
-                />
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-between mb-2">
-          <SellNft price={arrayListNFT.price} tokenId={item.tokenId}/>
-        </div>
-      </div>
-    </div>
-    </div>
-  ))}
-
-  {marketplaces.length > 0 ? (
-    <>
-    {marketplaces.map((item) => (
-      <div class="col-md-4 col-lg-4 mb-4 mb-lg-0">
-        <div class="card">
-          <div class="d-flex justify-content-between p-3">
-            <p class="lead mb-0">Name Item</p>
-            <div
-              class="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
-              style={{ width: '35px', height: '35px' }}>
-              <p class="text-white mb-0 small">x4</p>
-            </div>
-          </div>
-          <img src={item.tokenUri}
-            class="card-img-top" alt="Laptop" />
-          <div class="card-body">
-            <div class="d-flex justify-content-between">
-              <p class=""><a href="#!" class="text-muted" style={{ textDecoration: 'none'}}>Seller</a></p>
-              <p class="small">You</p>
-            </div>
-
-            <div class="d-flex justify-content-between mb-3">
-              <h5 class="mb-0">Price</h5>
-              <h5 class="text-dark mb-0">{ethers.utils.formatEther(item.price)}</h5>
-            </div>
-
-            <div class="d-flex justify-content-between mb-2">
-            {address === item.seller ? (
-              <CancelSellNft marketItemId={item.marketItemId}/>
-            ) : null}
-            </div>
-          </div>
-        </div>
-      </div>
-    ))}
-    </>
-  ) : null}
+    </section>
   </>
   );
 }

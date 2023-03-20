@@ -27,33 +27,33 @@ export default function Connect () {
   };
 
   return (
-  <body class="bg-purple">       
-      <div class="stars">
-          <div class="custom-navbar">
+  <body classNameName="bg-purple">       
+      <div classNameName="stars">
+          <div classNameName="custom-navbar">
           </div>
-          <div class="central-body">
-              {/* <img class="image-404" src="http://salehriaz.com/404Page/img/404.svg" width="300px" alt="404" /> */}
-              <span class="image-404" id="text-error">LOOK LIKE YOU DO NOT</span>
+          <div className="central-body">
+              {/* <img className="image-404" src="http://salehriaz.com/404Page/img/404.svg" width="300px" alt="404" /> */}
+              <span className="image-404" id="text-error">LOOK LIKE YOU DO NOT</span>
               <br></br>
-              <span class="image-404">CONNECT METAMASK</span>
-              <a href="/#" class="btn-connect" target="_blank" rel="noreferrer" onClick={connectWallet}>Connect Wallet</a>
+              <span className="image-404">CONNECT METAMASK</span>
+              <a href="/#" className="btn-connect" target="_blank" rel="noreferrer" onClick={connectWallet}>Connect Wallet</a>
           </div>
-          <div class="objects">
-              <img class="object_rocket" src="http://salehriaz.com/404Page/img/rocket.svg" width="40px" alt="404" />
-              <div class="earth-moon">
-                  <img class="object_earth" src="http://salehriaz.com/404Page/img/earth.svg" width="100px" alt="404" />
-                  <img class="object_moon" src="http://salehriaz.com/404Page/img/moon.svg" width="80px" alt="404" />
+          <div className="objects">
+              <img className="object_rocket" src="http://salehriaz.com/404Page/img/rocket.svg" width="40px" alt="404" />
+              <div className="earth-moon">
+                  <img className="object_earth" src="http://salehriaz.com/404Page/img/earth.svg" width="100px" alt="404" />
+                  <img className="object_moon" src="http://salehriaz.com/404Page/img/moon.svg" width="80px" alt="404" />
               </div>
-              <div class="box_astronaut">
-                  <img class="object_astronaut" src="http://salehriaz.com/404Page/img/astronaut.svg" width="140px" alt="404" />
+              <div className="box_astronaut">
+                  <img className="object_astronaut" src="http://salehriaz.com/404Page/img/astronaut.svg" width="140px" alt="404" />
               </div>
           </div>
-          <div class="glowing_stars">
-              <div class="star"></div>
-              <div class="star"></div>
-              <div class="star"></div>
-              <div class="star"></div>
-              <div class="star"></div>
+          <div className="glowing_stars">
+              <div className="star"></div>
+              <div className="star"></div>
+              <div className="star"></div>
+              <div className="star"></div>
+              <div className="star"></div>
           </div>
       </div>
   </body>

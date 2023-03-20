@@ -65,12 +65,13 @@ html, body{
 }
 
 .bg-purple{
-    background: url(http://salehriaz.com/404Page/img/bg_purple.png);
+    background: url(http://salehriaz.com/404Page/img/bg_purple.png) repeat center;
     background-repeat: repeat-x;
     background-size: cover;
     background-position: left top;
     height: 100%;
     overflow: hidden;
+    min-height: calc(100vh - 0px);
     
 }
 
@@ -85,7 +86,7 @@ html, body{
 }
 
 .navbar-links{
-    display: inline-block;
+    display: block;
     float: right;
     margin-right: 15px;
     text-transform: uppercase;
@@ -335,7 +336,6 @@ h1 {
     color: #fff;
 }
 
-/* #text-error::after {
-    content: "\a";
-    white-space: pre;
-} */
+img:hover {
+    cursor: pointer;
+}

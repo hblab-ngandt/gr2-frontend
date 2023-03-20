@@ -51,13 +51,13 @@ export default function Marketplace(props) {
   }, []);
 
   return (
-    <section style={{backgroundColor: 'eee'}}>
+    <section>
       <div class="container py-5">
         <div class="row">
           {marketplaces.length > 0 ? (
             <>
-            {marketplaces.map((item) => (
-              <div class="col-md-4 col-lg-4 mb-4 mb-lg-0">
+            {marketplaces.map((item, i) => (
+              <div class="col-md-4 col-lg-4 mb-4 mb-lg-0" key={i}>
                 <div class="card">
                   <div class="d-flex justify-content-between p-3">
                     <p class="lead mb-0">Name Item</p>
@@ -72,7 +72,9 @@ export default function Marketplace(props) {
                   <div class="card-body">
                     <div class="d-flex justify-content-between">
                       <p class=""><a href="#!" class="text-muted" style={{ textDecoration: 'none'}}>Seller</a></p>
-                      <p class="small">{item.seller.slice(0, 5) + '... ' + item.seller.slice(item.seller.length - 3, item.seller.length)}</p>
+                      {address === item.seller
+                      ? (<p class="small">You</p>) 
+                      : (<p class="small">{item.seller.slice(0, 5) + '... ' + item.seller.slice(item.seller.length - 3, item.seller.length)}</p>)}
                     </div>
         
                     <div class="d-flex justify-content-between mb-3">

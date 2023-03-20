@@ -64,27 +64,27 @@ export default function CreateNft (props) {
   };
 
   return (
-    <div class="col-md-4 col-lg-4 mb-4 mb-lg-0">
-    <div class="card">
-      <div class="d-flex justify-content-between p-3">
-        <p class="lead mb-0"></p>
+    <div className="col-md-4 col-lg-4 mb-4 mb-lg-0">
+    <div className="card">
+      <div className="d-flex justify-content-between p-3">
+        <p className="lead mb-0"></p>
         <div
-          class="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
+          className="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
           style={{ width: '35px', height: '35px' }}>
-          <p class="text-white mb-0 small">x4</p>
+          <p className="text-white mb-0 small">x4</p>
         </div>
       </div>
       <form onSubmit={createNft}>
         <label htmlFor="upload-button">
           {demo.preview ? (
-            <img src={demo.preview} alt="img-upload" class="card-img-top" />
+            <img src={demo.preview} alt="img-upload" className="card-img-top" />
           ) : (
-            <img src={noImage} alt="img-not-availabel" class="card-img-top" />
+            <img src={noImage} alt="img-not-availabel" className="card-img-top" />
           )}
         </label>
-        <div class="form-group">
+        <div className="form-group">
           <input
-            class="mb-0"
+            className="mb-0"
             type="file"
             multiple
             hidden
@@ -93,26 +93,25 @@ export default function CreateNft (props) {
             onChange={handleChange}
           />
         </div>
-        <div class="card-body">
-          <div class="d-flex justify-content-between mb-3">
-            <h5 class="mb-0">Title</h5>
-            <div class="form-group mb-0">
-              <input type="text" class="form-control" style={{width: '9rem'}}/>
+        <div className="card-body">
+          <div className="d-flex justify-content-between mb-3">
+            <h5 className="mb-0">Title</h5>
+            <div className="form-group mb-0">
+              <input type="text" className="form-control" style={{width: '9rem'}}/>
             </div>
           </div>
 
-          <div class="d-flex justify-content-between">
+          <div className="d-flex justify-content-between">
           </div>
 
-          <div class="d-flex justify-content-between mb-2">
-            <div class=""></div>
-            <div class="mb-0">
+          <div className="d-flex justify-content-between mb-2">
+            <div className=""></div>
+            <div className="mb-0">
               <button className="btn btn-primary" type="submit" >
                 Create
               </button>
             </div>
           </div>
-
         </div>
       </form>
     </div>
