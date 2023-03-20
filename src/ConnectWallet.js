@@ -8,6 +8,8 @@ import NavBar from "./components/NavBar";
 import CreateNft from "./components/CreateNft";
 import MyNft from "./components/MyNft";
 import Marketplace from "./components/Marketplace";
+import Connect from "./components/Connect";
+
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
 function ConnectWallet() {
@@ -110,7 +112,7 @@ function ConnectWallet() {
             )}
           </div>
         ) : (
-          <h3>Please install Metamask</h3>
+          <h3>Please install Metamask to continue</h3>
         )}
       </header>
     </div>

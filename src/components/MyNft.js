@@ -57,7 +57,7 @@ export default function MyNft (props) {
             marketItemId: Web3.utils.hexToNumber(tx[i].marketItemId),
             nftContract: tx[i].nftContract,
             owner: tx[i].owner,
-            price: Web3.utils.hexToNumber(tx[i].price),
+            price: Web3.utils.hexToNumberString(tx[i].price),
             seller: tx[i].seller,
             tokenId: tokenId,
             tokenUri: uri
