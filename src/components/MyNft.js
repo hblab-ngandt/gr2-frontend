@@ -83,7 +83,7 @@ export default function MyNft (props) {
     <section>
       <div className="container py-5">
         <div className="row">
-        <CreateNft />
+        <CreateNft address={address}/>
           {myNft.map((item, i) =>(
             <div className="col-md-4 col-lg-4 mb-4 mb-lg-0" key={i}>
             <div className="card">

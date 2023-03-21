@@ -12,6 +12,7 @@ export default function CreateNft (props) {
   
   const [images, setImages] = useState([]);
   const [demo, setDemo] = useState({ preview: "", raw: "" });
+  let address = props.address;
   
   const ipfs = create({
     url: "https://ipfs.infura.io:5001/api/v0",
@@ -43,7 +44,7 @@ export default function CreateNft (props) {
       ]);
       let url = baseImage + result.path;
 
-      let nftTx = await nftContract.safeMint(props.address, url);
+      let nftTx = await nftContract.safeMint(address, url);
       let tx = await nftTx.wait();
 
       console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
@@ -97,7 +98,7 @@ export default function CreateNft (props) {
           <div className="d-flex justify-content-between mb-3">
             <h5 className="mb-0">Title</h5>
             <div className="form-group mb-0">
-              <input type="text" className="form-control" style={{width: '9rem'}}/>
+              {/* <input type="text" className="form-control" style={{width: '9rem'}}/> */}
             </div>
           </div>
 
