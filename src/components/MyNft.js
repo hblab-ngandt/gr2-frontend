@@ -84,8 +84,8 @@ export default function MyNft (props) {
       <div className="container py-5">
         <div className="row">
         <CreateNft />
-          {myNft.map((item) =>(
-            <div className="col-md-4 col-lg-4 mb-4 mb-lg-0">
+          {myNft.map((item, i) =>(
+            <div className="col-md-4 col-lg-4 mb-4 mb-lg-0" key={i}>
             <div className="card">
               <div className="d-flex justify-content-between p-3">
                 <p className="lead mb-0">Name Item</p>
@@ -125,8 +125,8 @@ export default function MyNft (props) {
 
           {marketplaces.length > 0 ? (
             <>
-            {marketplaces.map((item) => (
-              <div className="col-md-4 col-lg-4 mb-4 mb-lg-0">
+            {marketplaces.filter((item) => item.seller === address).map((item, i) => (
+              <div className="col-md-4 col-lg-4 mb-4 mb-lg-0" key={i}>
                 <div className="card">
                   <div className="d-flex justify-content-between p-3">
                     <p className="lead mb-0">Name Item</p>

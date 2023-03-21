@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import '../css/NotFound.css';
 import MyNft from './MyNft';
 import Marketplace from './Marketplace';
+import Home from './Home';
 import Logo from '../assets/Logo.svg'
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -42,16 +43,16 @@ export default function NavBar(props) {
           <Router>
           <div class="navbar-links">
             <ul>
-              <li><Link exact to={'/'} className='btn-request'>Home</Link></li>
-              <li><Link exact to={'/marketplaces'} >Marketplace</Link></li>
-              <li><Link exact to={'/my-nft'} >My NFT</Link></li>
+              <li><Link to={'/'} className='btn-request'>Home</Link></li>
+              <li><Link to={'/marketplaces'} >Marketplace</Link></li>
+              <li><Link to={'/my-nft'} >My NFT</Link></li>
               { isConnected ? 
-                (<li><Link exact to={'/'} >{balance}</Link></li>) 
-              : (<li><Link onClick={() => connectWallet()} to={'/marketplaces'}>Connect Wallet</Link></li>)}
+                (<li><a href="/">{balance}</a></li>) 
+              : (<li><Link onClick={() => connectWallet()} to={'/'}>Connect Wallet</Link></li>)}
             </ul>
           </div>
           <Routes>
-              <Route  path='/' element={<NavBar />} />
+              <Route  path='/' element={<Home />} />
               <Route  path='/my-nft' element={<MyNft address={accountAddress} />} />
               <Route  path='/marketplaces' element={<Marketplace balance={balance} address={accountAddress} />} />
             </Routes>
