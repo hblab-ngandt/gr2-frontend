@@ -7,6 +7,7 @@ import MyNft from './MyNft';
 import Marketplace from './Marketplace';
 import Home from './Home';
 import Logo from '../assets/Logo.svg'
+import Footer from "./Footer";
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -34,6 +35,7 @@ export default function NavBar(props) {
     }
   };
   return (
+    <>
     <div class="bg-purple">
       <div class="stars">
         <div class="custom-navbar">
@@ -64,6 +66,8 @@ export default function NavBar(props) {
           <img class="object_rocket" src="http://salehriaz.com/404Page/img/rocket.svg" width="40px" alt='navbar' />
         </div>
       </div>
+      <Footer />
     </div>
+    </>
   );
 }
