@@ -65,7 +65,7 @@ export default function CreateNft (props) {
   };
 
   return (
-    <div className="col-md-4 col-lg-4 mb-4 mb-lg-0">
+    <div className="col-md-3 col-lg-3 mb-3 mb-lg-0">
     <div className="card">
       <div className="d-flex justify-content-between p-3">
         <p className="lead mb-0"></p>

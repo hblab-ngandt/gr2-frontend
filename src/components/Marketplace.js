@@ -57,7 +57,7 @@ export default function Marketplace(props) {
           {marketplaces.length > 0 ? (
             <>
             {marketplaces.map((item, i) => (
-              <div class="col-md-4 col-lg-4 mb-4 mb-lg-0" key={i}>
+              <div class="col-md-3 col-lg-3 mb-3 mb-lg-0" key={i}>
                 <div class="card">
                   <div class="d-flex justify-content-between p-3">
                     <p class="lead mb-0">Name Item</p>
