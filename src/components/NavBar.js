@@ -1,6 +1,7 @@
 import { React, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
 import { ethers } from "ethers";
+import axios from 'axios';
 
 import '../css/NotFound.css';
 import MyNft from './MyNft';
@@ -17,7 +18,7 @@ export default function NavBar(props) {
   const [accountAddress, setAccountAddress] = useState();
   const [balance, setBalance] = useState();
   const [isConnected, setIsConnected] = useState(false);
-
+  const [username, setUsername] = useState();
 
   const reloadPage = async () => {
     window.location.reload()
@@ -26,10 +27,18 @@ export default function NavBar(props) {
   const connectWallet = async () => {
     try {
       const accounts = await provider.send("eth_requestAccounts", []);
-      setAccountAddress(ethers.utils.getAddress(accounts[0]));
+      const acc = ethers.utils.getAddress(accounts[0]);
+      setAccountAddress(acc);
       let balanceAddress = await provider.getBalance(accounts[0]);
       setBalance(ethers.utils.formatEther(balanceAddress));
       setIsConnected(true);
+      axios.post('http://localhost:8626/api/login', {
+        walletAddress: acc,
+      }).then(function(response) {
+        setUsername(response.data.data.username);
+      }).catch(function(error) {
+        console.log(error);
+      });
     } catch (err) {
       setIsConnected(false);
     }
@@ -49,7 +58,7 @@ export default function NavBar(props) {
               <li><Link to={'/marketplaces'} >Marketplace</Link></li>
               <li><Link to={'/my-nft'} >My NFT</Link></li>
               { isConnected ? 
-                (<li><a href="/">{balance}</a></li>) 
+                (<li><a href="/">Hello, {username}</a></li>) 
               : (<li><Link onClick={() => connectWallet()} to={'/'}>Connect Wallet</Link></li>)}
             </ul>
           </div>
