@@ -58,7 +58,15 @@ export default function NavBar(props) {
               <li><Link to={'/marketplaces'} >Marketplace</Link></li>
               <li><Link to={'/my-nft'} >My NFT</Link></li>
               { isConnected ? 
-                (<li><a href="/">Hello, {username}</a></li>) 
+                (<li>
+                  <img src="https://mdbcdn.b-cdn.net/img/new/avatars/8.webp"
+                    class="rounded-circle mb-1"
+                    style={{width: '60px', alignContent: 'center'}}
+                    alt="avatar"
+                  />
+                  <a href="/#">{username}</a>
+                </li>
+                )
               : (<li><Link onClick={() => connectWallet()} to={'/'}>Connect Wallet</Link></li>)}
             </ul>
           </div>
