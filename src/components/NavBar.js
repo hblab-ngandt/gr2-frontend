@@ -18,7 +18,7 @@ export default function NavBar(props) {
   const [accountAddress, setAccountAddress] = useState();
   const [balance, setBalance] = useState();
   const [isConnected, setIsConnected] = useState(false);
-  const [username, setUsername] = useState();
+  const [user, setUser] = useState([]);
 
   const reloadPage = async () => {
     window.location.reload()
@@ -35,7 +35,7 @@ export default function NavBar(props) {
       axios.post('http://localhost:8626/api/login', {
         walletAddress: acc,
       }).then(function(response) {
-        setUsername(response.data.data.username);
+        setUser(response.data.result.user);
       }).catch(function(error) {
         console.log(error);
       });
@@ -59,12 +59,14 @@ export default function NavBar(props) {
               <li><Link to={'/my-nft'} >My NFT</Link></li>
               { isConnected ? 
                 (<li>
-                  <img src="https://mdbcdn.b-cdn.net/img/new/avatars/8.webp"
+                  <img src={user.profile}
                     class="rounded-circle mb-1"
-                    style={{width: '60px', alignContent: 'center'}}
+                    style={{borderRadius: '50%',
+                    width: 50,
+                    height: 50,
+                    display: "block"}}
                     alt="avatar"
                   />
-                  <a href="/#">{username}</a>
                 </li>
                 )
               : (<li><Link onClick={() => connectWallet()} to={'/'}>Connect Wallet</Link></li>)}
