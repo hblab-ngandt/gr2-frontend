@@ -9,6 +9,7 @@ import Marketplace from './Marketplace';
 import Home from './Home';
 import Logo from '../assets/Logo.svg'
 import Footer from "./Footer";
+import Profile from "./Profile";
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -43,6 +44,13 @@ export default function NavBar(props) {
       setIsConnected(false);
     }
   };
+  const userdata = {
+    name: user.username,
+    address: user.walletAddress,
+    birthday: user.birthday,
+    profile: user.profile
+  };
+
   return (
     <>
     <div class="bg-purple">
@@ -58,15 +66,16 @@ export default function NavBar(props) {
               <li><Link to={'/marketplaces'} >Marketplace</Link></li>
               <li><Link to={'/my-nft'} >My NFT</Link></li>
               { isConnected ? 
-                (<li>
+                (<li><Link to={'/profile'} >
                   <img src={user.profile}
-                    class="rounded-circle mb-1"
+                    className="rounded-circle mb-1"
                     style={{borderRadius: '50%',
                     width: 50,
                     height: 50,
                     display: "block"}}
                     alt="avatar"
                   />
+                  </Link>
                 </li>
                 )
               : (<li><Link onClick={() => connectWallet()} to={'/'}>Connect Wallet</Link></li>)}
@@ -76,6 +85,7 @@ export default function NavBar(props) {
               <Route  path='/' element={<Home />} />
               <Route  path='/my-nft' element={<MyNft address={accountAddress} />} />
               <Route  path='/marketplaces' element={<Marketplace balance={balance} address={accountAddress} />} />
+              <Route  path='/profile' element={<Profile user={userdata} />} />
             </Routes>
           </Router>
         </div>

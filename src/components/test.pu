@@ -1,0 +1,66 @@
+@startuml
+title create artist Sequence Diagram (ECB)
+
+actor Admin
+boundary CreateArtistScreen
+boundary SideBarMenu
+boundary ListArtistScreen
+control MiddlewarePermission
+control ListController
+control CreateController
+control StoreController
+control AdminService
+control AdminRepository
+entity AdminModel
+
+Admin -> SideBarMenu : click to access create artist screen
+SideBarMenu -> MiddlewarePermission : request to access create artist screen
+MiddlewarePermission -> MiddlewarePermission : check if admin present has permission to access
+alt#Gold admin has permission
+    MiddlewarePermission -> CreateController: request to access create artist screen
+    CreateController --> CreateArtistScreen: show screen creat artist
+    CreateArtistScreen --> Admin: show screen creat artist
+    Admin -> CreateArtistScreen: enter artist information
+    CreateArtistScreen -> MiddlewarePermission: request to access StoreController
+    MiddlewarePermission -> MiddlewarePermission : check if admin present has permission to access
+    alt#Green admin has permission
+        MiddlewarePermission -> StoreController: artist information
+        StoreController -> StoreController: validate artist information
+        alt#Blue information valid
+            StoreController -> AdminService: artist information
+            AdminService -> AdminService: generate artist data
+            AdminService -> AdminRepository: artist data
+            AdminRepository -> AdminModel: artist data
+            AdminModel -> AdminModel: save artist data
+            AdminModel --> AdminRepository: confirm save successfully
+            AdminRepository --> AdminService: confirm save successfully
+            AdminService --> StoreController: confirm save successfully
+            StoreController --> MiddlewarePermission: request to access list artist screen with message confirm save successfully
+            MiddlewarePermission -> MiddlewarePermission: check if admin present has permission to access
+            alt#Yellow admin has permission
+                MiddlewarePermission -> ListController: request to access list artist screen
+                ListController -> AdminService: get list data artist
+                AdminService -> AdminRepository: get list data artist
+                AdminRepository -> AdminModel: get list data artist
+                AdminModel --> AdminRepository: return list data artist
+                AdminRepository --> AdminService: return list data artist
+                AdminService --> ListController: return list data artist
+                ListController --> ListArtistScreen: return list data artist
+                ListArtistScreen --> Admin: show list data artist
+            else admin don't have permission
+                MiddlewarePermission --> ListArtistScreen: admin don't have permission
+                ListArtistScreen --> Admin: error screen 401
+            end
+        else information invalid
+            StoreController --> CreateArtistScreen: return message error invalid artist information
+            CreateArtistScreen --> Admin: show message error invalid artist information
+        end
+    else admin don't have permission
+        MiddlewarePermission --> CreateArtistScreen: admin don't have permission
+        CreateArtistScreen --> Admin: error screen 401
+    end
+else admin don't have permission
+    MiddlewarePermission --> CreateArtistScreen: admin don't have permission
+    CreateArtistScreen --> Admin: error screen 401
+end
+@enduml
