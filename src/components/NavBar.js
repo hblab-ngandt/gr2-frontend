@@ -10,6 +10,7 @@ import Home from './Home';
 import Logo from '../assets/Logo.svg'
 import Footer from "./Footer";
 import Profile from "./Profile";
+import UpdateProfile from "./UpdateProfile";
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -20,6 +21,7 @@ export default function NavBar(props) {
   const [balance, setBalance] = useState();
   const [isConnected, setIsConnected] = useState(false);
   const [user, setUser] = useState([]);
+  const [token, setToken] = useState();
 
   const reloadPage = async () => {
     window.location.reload()
@@ -37,6 +39,7 @@ export default function NavBar(props) {
         walletAddress: acc,
       }).then(function(response) {
         setUser(response.data.result.user);
+        setToken(response.data.result.accessToken);
       }).catch(function(error) {
         console.log(error);
       });
@@ -44,11 +47,16 @@ export default function NavBar(props) {
       setIsConnected(false);
     }
   };
+
+  localStorage.setItem('tokenData', token);
+  const wholeToken = localStorage.getItem('token');
+
   const userdata = {
     name: user.username,
     address: user.walletAddress,
     birthday: user.birthday,
-    profile: user.profile
+    profile: user.profile,
+    token: wholeToken
   };
 
   return (
@@ -86,6 +94,7 @@ export default function NavBar(props) {
               <Route  path='/my-nft' element={<MyNft address={accountAddress} />} />
               <Route  path='/marketplaces' element={<Marketplace balance={balance} address={accountAddress} />} />
               <Route  path='/profile' element={<Profile user={userdata} />} />
+              <Route path='/update' element={<UpdateProfile user={userdata} />} />
             </Routes>
           </Router>
         </div>
