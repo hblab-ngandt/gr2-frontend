@@ -1,15 +1,13 @@
 import { React, useState } from "react";
-import { create } from "ipfs-http-client";
 import { useNavigate } from "react-router-dom";
-import { authorization, baseImage } from "../settings/Constant";
 import axios from 'axios';
 
 export default function UpdateProfile({user}) {
 
   let address = user.address;
   let profile = user.profile;
+  let birthday = user.birthday;
   let name = user.name;
-  const [images, setImages] = useState([]);
   const [demo, setDemo] = useState({ preview: "", raw: "" });
   const navigate = useNavigate();
 
@@ -21,15 +19,8 @@ export default function UpdateProfile({user}) {
   const token = localStorage.getItem('token');
   console.log(token);
 
-  const ipfs = create({
-    url: "https://ipfs.infura.io:5001/api/v0",
-    headers: {
-      authorization,
-    },
-  });
-
   const handleChange = (e) => {
-    if (e.target.files.length) {
+    if (e.target.files && e.target.files.length > 0) {
       setDemo({
         preview: URL.createObjectURL(e.target.files[0]),
         raw: e.target.files[0]
@@ -38,43 +29,27 @@ export default function UpdateProfile({user}) {
   };
 
   const updateProfile = async (e) =>{
+    e.preventDefault();
+    const dataForm = new FormData();
+    dataForm.append('walletAddress', address);
+    dataForm.append('username', e.target.fullname.value);
+    dataForm.append('birthday', e.target.birthday.value);
+    dataForm.append('images', demo.raw);
     try {
-      e.preventDefault();
-      const form = e.target;
-      const files = form[0].files;
-      let url = '';
-      if (files) {
-        const file = files[0];
-        // upload files
-        const result = await ipfs.add(file);
-        setImages([
-          ...images,
-          {
-            cid: result.cid,
-            path: result.path
-          }
-        ]);
-        url = baseImage + result.path;
-      }
-      // call update profile api
-      axios.post('http://localhost:8626/api/user/update', {
-        // headers: {
-        //   Authorization: `Bearer ${token}`,
-        // },
-        walletAddress: address,
-        username: e.target.fullname.value !== null ? e.target.fullname.value : name,
-        birthday: e.target.birthday.value !== null ? e.target.birthday.value : defaultValue,
-        image: url !== undefined ? url : profile,
-      }).then(function(response) {
-        console.log(response.data);
-      }).catch(function(error) {
-        console.log(error);
-      });
-      form.reset();
-
-      window.location.reload(true);
-    } catch (err) {
-      console.log(err);
+      const response = await axios.post(
+        "http://localhost:8626/api/user/update",
+        dataForm,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      navigate("/profile");
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -130,7 +105,7 @@ export default function UpdateProfile({user}) {
                       <p class="mb-0">Birthday</p>
                     </div>
                     <div class="col-sm-6 update-profile-parent">
-                      <input type="date" class="form-control" id="profile-birthday" name="birthday" defaultValue={defaultValue}/>
+                      <input type="date" class="form-control" id="profile-birthday" name="birthday" defaultValue={birthday ? birthday : defaultValue}/>
                     </div>
                   </div>
                   <div class="row py-2">

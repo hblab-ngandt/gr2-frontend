@@ -5,23 +5,20 @@ import axios from 'axios';
 export default function Profile({user}) {
 
   const [userdata, setUserData] = useState([]);
-  // let profile = user.profile;
-  // // let name = user.name;
-  // // let birthday = user.birthday;
   let address = user.address;
-  let token = user.token;
+  // let token = user.token;
 
   const navigate = useNavigate();
 
   const getProfile = async () => {
     try {
       axios.post('http://localhost:8626/api/user/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
+        // headers: {
+        //   'Authorization': `Bearer ${token}`
+        // },
         walletAddress: address,
       }).then(function(response) {
-        setUserData(response.data.result);
+        setUserData(response.data.user);
       }).catch(function(error) {
         console.log(error);
       });
@@ -33,9 +30,8 @@ export default function Profile({user}) {
   useEffect(() => {
     getProfile();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, []);
 
-  // console.log(profile);
   return (
     <>
     <section>
