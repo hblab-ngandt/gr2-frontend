@@ -11,6 +11,7 @@ import {
   nftContract,
   marketplaceContract
 } from "../settings/Constant";
+import axios from "axios";
 
 export default function MyNft (props) {
   
@@ -19,63 +20,21 @@ export default function MyNft (props) {
   const [arrayListNFT, setArrayListNFT] = useState([]);
   
   let address = props.address;
-
   const fetchMyNft = async () => {
     try {
-      let txNftContract = await nftContract.getCounterToken();
-      let numberToken = Web3.utils.hexToNumber(txNftContract);
-      let temp = [];
-
-      for (let i = 0; i < numberToken; i++) {
-        let owners = await nftContract.ownerOf(i);
-        if (props.address === owners) {
-          let uri = await nftContract.tokenURI(i);
-          
-          const data = {
-            tokenId: i,
-            tokenUri: uri
-          }
-          temp.push(data);
+      const result = await axios.post(
+        "http://localhost:8626/api/nft/my-nft", {
+          walletAddress: address,
         }
-      }
-      setMyNft(temp);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const fetchMarketplace = async () => {
-    try {
-      let tx = await marketplaceContract.getListedNFT();
-      let temp = [];
-
-      for (let i = 1; i < tx.length; i++) {
-        if (tx[i].owner !== invalidAddress) {
-          let tokenId = Web3.utils.hexToNumber(tx[i].tokenId);
-          let uri = await nftContract.tokenURI(tokenId);
-  
-          const data = {
-            marketItemId: Web3.utils.hexToNumber(tx[i].marketItemId),
-            nftContract: tx[i].nftContract,
-            owner: tx[i].owner,
-            price: Web3.utils.hexToNumberString(tx[i].price),
-            seller: tx[i].seller,
-            tokenId: tokenId,
-            tokenUri: uri
-          }
-          temp.push(data);
-        }
-      }
-      setMarketplaces(temp);
-    } catch (e) {
-      console.log(e);
+      );
+      setMyNft(result.data.nfts);
+    } catch (err) {
+      console.log(err);
     }
   };
 
   useEffect(() => {
     fetchMyNft();
-    fetchMarketplace();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -88,15 +47,15 @@ export default function MyNft (props) {
             <div className="col-md-3 col-lg-3 mb-3" key={i}>
             <div className="card">
               <div className="d-flex justify-content-between p-3">
-                <p className="lead mb-0">Name Item</p>
+                <p className="lead mb-0">{item.name}</p>
                 <div
                   className="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
                   style={{ width: '35px', height: '35px' }}>
                   <p className="text-white mb-0 small">x4</p>
                 </div>
               </div>
-              <img src={item.tokenUri}
-                className="card-img-top" alt="Laptop" />
+              <img src={item.url}
+                className="card-img-top" alt="img-url" />
               <div className="card-body">
                 <div className="d-flex justify-content-between mb-3">
                   <h5 className="mb-0">Price</h5>
@@ -122,44 +81,6 @@ export default function MyNft (props) {
             </div>
             </div>
           ))}
-
-          {marketplaces.length > 0 ? (
-            <>
-            {marketplaces.filter((item) => item.seller === address).map((item, i) => (
-              <div className="col-md-3 col-lg-3 mb-3 mb-lg-0" key={i}>
-                <div className="card">
-                  <div className="d-flex justify-content-between p-3">
-                    <p className="lead mb-0">Name Item</p>
-                    <div
-                      className="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
-                      style={{ width: '35px', height: '35px' }}>
-                      <p className="text-white mb-0 small">x4</p>
-                    </div>
-                  </div>
-                  <img src={item.tokenUri}
-                    className="card-img-top" alt="Laptop" />
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between">
-                      <p className=""><a href="#!" className="text-muted" style={{ textDecoration: 'none'}}>Seller</a></p>
-                      <p className="small">You</p>
-                    </div>
-
-                    <div className="d-flex justify-content-between mb-3">
-                      <h5 className="mb-0">Price</h5>
-                      <h5 className="text-dark mb-0">{ethers.utils.formatEther(item.price)}</h5>
-                    </div>
-
-                    <div className="d-flex justify-content-between mb-2">
-                    {address === item.seller ? (
-                      <CancelSellNft marketItemId={item.marketItemId}/>
-                    ) : null}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            </>
-          ) : null}
         </div>
       </div>
     </section>

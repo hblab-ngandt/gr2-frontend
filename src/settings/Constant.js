@@ -41,6 +41,7 @@ export {
   nftAddress,
   nftContract,
   marketplaceContract,
+  marketplaceAddress,
   authorization,
   provider,
   signer,
