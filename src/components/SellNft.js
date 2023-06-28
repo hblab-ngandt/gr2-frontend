@@ -1,5 +1,6 @@
 import { React } from "react";
 import { ethers } from "ethers";
+import axios from "axios";
 
 import {
   nftAddress,
@@ -9,19 +10,35 @@ import {
 export default function SellNft (props) {
 
   let priceInHex = props.price;
-  let tokenId = props.tokenId;
+  let nftId = props.nftId;
+  let address = props.address;
 
   const sellNft = async () => {
     try {
       let price = ethers.utils.parseUnits(priceInHex, "ether");
       let marketTx = await marketplaceContract.listImageNFT(
         nftAddress,
-        tokenId,
+        nftId,
         price
       );
 
       let tx = await marketTx.wait();
-      console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
+      console.log(`Sell transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
+
+      if (tx.transactionHash){
+        const data = {
+          nftId: nftId,
+          walletAddress: address,
+          txHash: tx.transactionHash,
+          seller: address,
+          price: priceInHex,
+        };
+        const sellNft = await axios.post(
+          "http://localhost:8626/api/nft/sell-nft",
+          data,
+        );
+        console.log(sellNft.data);
+      }
     } catch (err) {
       console.log(err);
     }

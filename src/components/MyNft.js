@@ -6,18 +6,12 @@ import CreateNft from "./CreateNft";
 import SellNft from "./SellNft";
 import CancelSellNft from "./CancelSellNft";
 
-import {
-  invalidAddress,
-  nftContract,
-  marketplaceContract
-} from "../settings/Constant";
 import axios from "axios";
 
 export default function MyNft (props) {
   
   const [myNft, setMyNft] = useState([]);
-  const [marketplaces, setMarketplaces] = useState([]);
-  const [arrayListNFT, setArrayListNFT] = useState([]);
+  const [sellNft, setSellNft] = useState([]);
   
   let address = props.address;
   const fetchMyNft = async () => {
@@ -35,6 +29,7 @@ export default function MyNft (props) {
 
   useEffect(() => {
     fetchMyNft();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -65,17 +60,16 @@ export default function MyNft (props) {
                         className="form-control"
                         style={{width: '9rem'}}
                         onChange={(e) =>
-                          setArrayListNFT({
-                            tokenId: item.tokenId,
+                          setSellNft({
+                            nftId: item.nftId,
                             price: e.target.value,
-                            uri: item.tokenUri
                           })}
                         />
                     </div>
                 </div>
 
                 <div className="d-flex justify-content-between mb-2">
-                  <SellNft price={arrayListNFT.price} tokenId={item.tokenId}/>
+                  <SellNft price={sellNft.price} nftId={item.nftId} address={address}/>
                 </div>
               </div>
             </div>
