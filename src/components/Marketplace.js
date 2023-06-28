@@ -1,15 +1,13 @@
 import { React, useEffect, useState } from "react";
-import Web3 from "web3";
 import { ethers } from "ethers";
 
 import CancelSellNft from "./CancelSellNft";
 import BuyNft from "./BuyNft";
 
 import {
-  invalidAddress,
-  nftContract,
-  marketplaceContract
+  marketplaceAddress,
 } from "../settings/Constant";
+import axios from "axios";
 
 export default function Marketplace(props) {
 
@@ -19,27 +17,12 @@ export default function Marketplace(props) {
 
   const fetchMarketplace = async () => {
     try {
-      let tx = await marketplaceContract.getListedNFT();
-      let temp = [];
-
-      for (let i = 1; i < tx.length; i++) {
-        if (tx[i].owner !== invalidAddress) {
-          let tokenId = Web3.utils.hexToNumber(tx[i].tokenId);
-          let uri = await nftContract.tokenURI(tokenId);
-  
-          const data = {
-            marketItemId: Web3.utils.hexToNumber(tx[i].marketItemId),
-            nftContract: tx[i].nftContract,
-            owner: tx[i].owner,
-            price: Web3.utils.hexToNumberString(tx[i].price),
-            seller: tx[i].seller,
-            tokenId: tokenId,
-            tokenUri: uri
-          }
-          temp.push(data);
-        }
-      }
-      setMarketplaces(temp);
+      const market = await axios.post(
+        "http://localhost:8626/api/nft/marketplaces", {
+          marketplace: marketplaceAddress,
+        },
+      );
+      setMarketplaces(market.data.marketplaces);
     } catch (e) {
       console.log(e);
     }
@@ -57,37 +40,37 @@ export default function Marketplace(props) {
           {marketplaces.length > 0 ? (
             <>
             {marketplaces.map((item, i) => (
-              <div class="col-md-3 col-lg-3 mb-3 mb-lg-0" key={i}>
+              <div class="col-md-3 col-lg-3 mb-3 mb-lg-5" key={i}>
                 <div class="card">
                   <div class="d-flex justify-content-between p-3">
-                    <p class="lead mb-0">Name Item</p>
+                    <p class="lead mb-0">{item.name}</p>
                     <div
                       class="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
                       style={{ width: '35px', height: '35px' }}>
                       <p class="text-white mb-0 small">x4</p>
                     </div>
                   </div>
-                  <img src={item.tokenUri}
+                  <img src={item.url}
                     class="card-img-top" alt="Laptop" />
                   <div class="card-body">
                     <div class="d-flex justify-content-between">
                       <p class=""><a href="#!" class="text-muted" style={{ textDecoration: 'none'}}>Seller</a></p>
-                      {address === item.seller
+                      {address === item.created_by
                       ? (<p class="small">You</p>) 
                       : (<p class="small">{item.seller.slice(0, 5) + '... ' + item.seller.slice(item.seller.length - 3, item.seller.length)}</p>)}
                     </div>
         
                     <div class="d-flex justify-content-between mb-3">
                       <h5 class="mb-0">Price</h5>
-                      <h5 class="text-dark mb-0">{ethers.utils.formatEther(item.price)}</h5>
+                      <h5 class="text-dark mb-0">{item.price}</h5>
                     </div>
         
                     <div class="d-flex justify-content-between mb-2">
-                    {address === item.seller ? (
-                <CancelSellNft marketItemId={item.marketItemId}/>
-              ) : (
-                <BuyNft price={item.price} marketItemId={item.marketItemId} balance={balance} />
-              )}
+                    {address === item.created_by ? (
+                      <CancelSellNft marketItemId={item.marketItemId}/>
+                    ) : (
+                      <BuyNft price={item.price} marketItemId={item.marketItemId} balance={balance} />
+                    )}
                     </div>
                   </div>
                 </div>

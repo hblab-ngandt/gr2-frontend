@@ -1,4 +1,5 @@
 import { React, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Web3 from "web3";
 
@@ -14,6 +15,7 @@ export default function CreateNft (props) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const address = props.address;
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -63,6 +65,7 @@ export default function CreateNft (props) {
         dataNft,
       );
       console.log(createNft.data);
+      navigate("/my-nft");
     } catch (error) {
       console.log(error);
     }
