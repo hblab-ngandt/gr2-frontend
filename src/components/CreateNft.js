@@ -76,12 +76,6 @@ export default function CreateNft (props) {
       <div className="card">
         <div className="d-flex justify-content-between p-3">
           <p className="lead mb-0"></p>
-          <div
-            className="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
-            style={{ width: '35px', height: '35px' }}
-          >
-            <p className="text-white mb-0 small">x4</p>
-          </div>
         </div>
         <form onSubmit={createNft}>
           <label htmlFor="upload-button">

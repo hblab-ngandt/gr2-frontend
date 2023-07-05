@@ -1,5 +1,7 @@
 import { React } from "react";
 import { ethers } from "ethers";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
   marketplaceContract
@@ -9,20 +11,33 @@ export default function BuyNft (props) {
 
   let balance = props.balance;
   let price = props.price;
-  let marketItemId = props.marketItemId;
+  let marketId = props.marketId;
+  let address = props.address;
+  const navigate = useNavigate();
 
   const buyNft = async () => {
     try {
-      let valueInBnb = ethers.utils.formatEther(price.toString());
-      if (balance < valueInBnb)
+      const hexPrice = ethers.utils.parseUnits(price.toString(), "ether");
+      const amount = hexPrice.toString();
+      if (balance < price)
         return;
       else {
-        let buyTx = await marketplaceContract.buyImageNFT(marketItemId, {
-          value: ethers.utils.parseEther(valueInBnb),
+        let buyTx = await marketplaceContract.buyImageNFT(marketId, {
+          value: (amount),
         });
   
         let tx = await buyTx.wait();
         console.log(`See transaction: https://testnet.bscscan.com/tx/${tx.transactionHash}`);
+        const data = {
+          marketId: marketId,
+          walletAddress: address,
+        };
+        const buyNft = await axios.post(
+          "http://localhost:8626/api/nft/buy-nft",
+          data,
+        );
+        console.log(buyNft.data);
+        navigate("/my-nft")
       }
     } catch (err) {
       console.log(err);

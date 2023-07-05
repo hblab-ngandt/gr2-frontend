@@ -1,11 +1,7 @@
 import { React, useEffect, useState } from "react";
-import Web3 from "web3";
-import { ethers } from "ethers";
 
 import CreateNft from "./CreateNft";
 import SellNft from "./SellNft";
-import CancelSellNft from "./CancelSellNft";
-
 import axios from "axios";
 
 export default function MyNft (props) {
@@ -43,11 +39,6 @@ export default function MyNft (props) {
             <div className="card">
               <div className="d-flex justify-content-between p-3">
                 <p className="lead mb-0">{item.name}</p>
-                <div
-                  className="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
-                  style={{ width: '35px', height: '35px' }}>
-                  <p className="text-white mb-0 small">x4</p>
-                </div>
               </div>
               <img src={item.url}
                 className="card-img-top" alt="img-url" />

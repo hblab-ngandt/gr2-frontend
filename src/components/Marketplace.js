@@ -1,6 +1,4 @@
 import { React, useEffect, useState } from "react";
-import { ethers } from "ethers";
-
 import CancelSellNft from "./CancelSellNft";
 import BuyNft from "./BuyNft";
 
@@ -44,11 +42,6 @@ export default function Marketplace(props) {
                 <div class="card">
                   <div class="d-flex justify-content-between p-3">
                     <p class="lead mb-0">{item.name}</p>
-                    <div
-                      class="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
-                      style={{ width: '35px', height: '35px' }}>
-                      <p class="text-white mb-0 small">x4</p>
-                    </div>
                   </div>
                   <img src={item.url}
                     class="card-img-top" alt="Laptop" />
@@ -56,7 +49,7 @@ export default function Marketplace(props) {
                     <div class="d-flex justify-content-between">
                       <p class=""><a href="#!" class="text-muted" style={{ textDecoration: 'none'}}>Seller</a></p>
                       {address === item.created_by
-                      ? (<p class="small">You</p>) 
+                      ? (<p class="small">You{item.marketId}</p>) 
                       : (<p class="small">{item.seller.slice(0, 5) + '... ' + item.seller.slice(item.seller.length - 3, item.seller.length)}</p>)}
                     </div>
         
@@ -67,9 +60,9 @@ export default function Marketplace(props) {
         
                     <div class="d-flex justify-content-between mb-2">
                     {address === item.created_by ? (
-                      <CancelSellNft marketItemId={item.marketItemId}/>
+                      <CancelSellNft marketId={item.marketId}/>
                     ) : (
-                      <BuyNft price={item.price} marketItemId={item.marketItemId} balance={balance} />
+                      <BuyNft price={item.price} marketId={item.marketId} balance={balance} address={address} />
                     )}
                     </div>
                   </div>
