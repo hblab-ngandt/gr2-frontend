@@ -52,7 +52,7 @@ export default function SellNft (props) {
   return (
     <>
       <div class=""></div>
-      <div class="mb-0">
+      <div class="pt-3">
         <button className="btn btn-primary mb-0" onClick={() => sellNft()}>
           Sell
         </button>

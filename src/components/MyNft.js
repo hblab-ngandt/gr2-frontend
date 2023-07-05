@@ -43,7 +43,7 @@ export default function MyNft (props) {
               <img src={item.url}
                 className="card-img-top" alt="img-url" />
               <div className="card-body">
-                <div className="d-flex justify-content-between mb-3">
+                <div className="d-flex justify-content-between pt-3">
                   <h5 className="mb-0">Price</h5>
                     <div className="form-group">
                       <input 
@@ -55,11 +55,11 @@ export default function MyNft (props) {
                             nftId: item.nftId,
                             price: e.target.value,
                           })}
-                        />
+                      />
                     </div>
                 </div>
 
-                <div className="d-flex justify-content-between mb-2">
+                <div className="d-flex justify-content-between">
                   <SellNft price={sellNft.price} nftId={item.nftId} address={address}/>
                 </div>
               </div>

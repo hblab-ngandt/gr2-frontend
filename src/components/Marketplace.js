@@ -49,7 +49,7 @@ export default function Marketplace(props) {
                     <div class="d-flex justify-content-between">
                       <p class=""><a href="#!" class="text-muted" style={{ textDecoration: 'none'}}>Seller</a></p>
                       {address === item.created_by
-                      ? (<p class="small">You{item.marketId}</p>) 
+                      ? (<p class="small">You</p>) 
                       : (<p class="small">{item.seller.slice(0, 5) + '... ' + item.seller.slice(item.seller.length - 3, item.seller.length)}</p>)}
                     </div>
         

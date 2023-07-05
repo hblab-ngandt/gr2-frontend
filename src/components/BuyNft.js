@@ -37,7 +37,7 @@ export default function BuyNft (props) {
           data,
         );
         console.log(buyNft.data);
-        navigate("/my-nft")
+        navigate("/my-nft");
       }
     } catch (err) {
       console.log(err);

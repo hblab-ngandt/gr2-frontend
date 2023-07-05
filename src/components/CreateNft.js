@@ -13,7 +13,7 @@ export default function CreateNft (props) {
   
   const [demo, setDemo] = useState({ preview: "", raw: "" });
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  // const [description, setDescription] = useState('');
   const address = props.address;
   const navigate = useNavigate();
 
@@ -26,14 +26,15 @@ export default function CreateNft (props) {
     }
   };
   const token = localStorage.getItem('token');
+  const description = "New NFT"
 
   const handleNameChange = (event) => {
     setName(event.target.value);
   };
 
-  const handleDescriptionChange = (event) => {
-    setDescription(event.target.value);
-  };
+  // const handleDescriptionChange = (event) => {
+  //   setDescription(event.target.value);
+  // };
   const createNft = async (event) => {
     event.preventDefault();
     const dataForm = new FormData();
@@ -75,7 +76,7 @@ export default function CreateNft (props) {
     <div className="col-md-3 col-lg-3 mb-3 mb-lg-0">
       <div className="card">
         <div className="d-flex justify-content-between p-3">
-          <p className="lead mb-0"></p>
+          <p className="lead pt-3"></p>
         </div>
         <form onSubmit={createNft}>
           <label htmlFor="upload-button">
@@ -97,7 +98,7 @@ export default function CreateNft (props) {
             />
           </div>
           <div className="card-body">
-            <div className="d-flex justify-content-between mb-3">
+            <div className="d-flex justify-content-between pt-2">
               <h5 className="mb-0">Title</h5>
               <div className="form-group mb-0">
                 <input
@@ -110,23 +111,23 @@ export default function CreateNft (props) {
               </div>
             </div>
 
-            <div className="d-flex justify-content-between">
-              <h5 className="mb-0">Description</h5>
+            {/* <div className="d-flex justify-content-between">
+              <h5 className="mb-0">Descr</h5>
               <div className="form-group mb-0">
                 <input
                   type="text"
                   className="form-control"
-                  rows="3"
+                  style={{ width: '9rem' }}
                   placeholder="Description"
                   value={description}
                   onChange={handleDescriptionChange}
                 />
               </div>
-            </div>
+            </div> */}
 
-            <div className="d-flex justify-content-between mb-2">
+            <div className="d-flex justify-content-between">
               <div className=""></div>
-              <div className="mb-0">
+              <div className="pt-3 mb-1">
                 <button className="btn btn-primary" type="submit">
                   Create
                 </button>
