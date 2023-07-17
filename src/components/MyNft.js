@@ -8,6 +8,7 @@ export default function MyNft (props) {
   
   const [myNft, setMyNft] = useState([]);
   const [sellNft, setSellNft] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   
   let address = props.address;
   const fetchMyNft = async () => {
@@ -28,13 +29,34 @@ export default function MyNft (props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const filterData = myNft.filter((item) => 
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
   <>
     <section>
+      <div className="container">
+        <div className="row">
+          <div className="col-md-3 offset-md-9 mb-3">
+            <input type="text"
+                className="form-control"
+                placeholder="Search by name ..."
+                value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  borderRadius: '100px',
+                  border: '1px solid #FFCB39',
+                  backgroundColor: "transparent",
+                  color: 'white'
+                }}
+              />
+          </div>
+        </div>
+      </div>
       <div className="container py-5">
         <div className="row">
         <CreateNft address={address}/>
-          {myNft.map((item, i) =>(
+          {filterData.map((item, i) =>(
             <div className="col-md-3 col-lg-3 mb-3" key={i}>
             <div className="card">
               <div className="d-flex justify-content-between p-3">

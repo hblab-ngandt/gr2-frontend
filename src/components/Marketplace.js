@@ -12,6 +12,7 @@ export default function Marketplace(props) {
   const [marketplaces, setMarketplaces] = useState([]);
   let address = props.address;
   let balance = props.balance;
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchMarketplace = async () => {
     try {
@@ -31,13 +32,34 @@ export default function Marketplace(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+    const filterData = marketplaces.filter((item) => 
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <section>
+      <div className="container">
+        <div className="row">
+          <div className="col-md-3 offset-md-9 mb-3">
+            <input type="text"
+                className="form-control"
+                placeholder="Search by name ..."
+                value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  borderRadius: '100px',
+                  border: '1px solid #FFCB39',
+                  backgroundColor: "transparent",
+                  color: 'white'
+                }}
+              />
+          </div>
+        </div>
+      </div>
       <div class="container py-5">
         <div class="row">
           {marketplaces.length > 0 ? (
             <>
-            {marketplaces.map((item, i) => (
+            {filterData.map((item, i) => (
               <div class="col-md-3 col-lg-3 mb-3 mb-lg-5" key={i}>
                 <div class="card">
                   <div class="d-flex justify-content-between p-3">
