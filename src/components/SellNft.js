@@ -3,6 +3,9 @@ import { ethers } from "ethers";
 import axios from "axios";
 import Web3 from "web3";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 import {
   nftAddress,
@@ -41,11 +44,21 @@ export default function SellNft (props) {
           "http://localhost:8626/api/nft/sell-nft",
           data,
         );
+        toast.success('Sell this NFT successfully!', {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 4000 // 3 seconds
+        });
         console.log(sellNft.data);
+        setTimeout(() => {
+          navigate("/marketplaces");
+        }, 5000);
       }
-      navigate("/marketplaces");
     } catch (err) {
       console.log(err);
+      toast.error('Error while selling this NFT', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 5000 // 5 seconds
+      });
     }
   };
 

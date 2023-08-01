@@ -1,7 +1,9 @@
 import { React, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 import axios from "axios";
 import Web3 from "web3";
+import 'react-toastify/dist/ReactToastify.css';
 
 import noImage from '../assets/no-image-available.png'
 import {
@@ -65,10 +67,18 @@ export default function CreateNft (props) {
         "http://localhost:8626/api/nft/create",
         dataNft,
       );
+      toast.success('Create NFT successfully!', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000 // 5 seconds
+      });
       console.log(createNft.data);
       navigate("/my-nft");
     } catch (error) {
       console.log(error);
+      toast.error('Something went wrong. Please try again later', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 5000 // 5 seconds
+      });
     }
   };
 

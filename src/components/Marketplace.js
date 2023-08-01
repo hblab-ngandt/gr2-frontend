@@ -36,6 +36,13 @@ export default function Marketplace(props) {
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  function NameSeller ({address, creator, seller}) {
+    if (address === creator) {
+      return <p class="small">You</p>
+    }
+    return <p class="small">{seller.slice(0, 5) + '... ' + seller.slice(seller.length - 3, seller.length)}</p>
+  }
+
   return (
     <section>
       <div className="container">
@@ -69,10 +76,8 @@ export default function Marketplace(props) {
                     class="card-img-top" alt="Laptop" />
                   <div class="card-body">
                     <div class="d-flex justify-content-between">
-                      <p class=""><a href="#!" class="text-muted" style={{ textDecoration: 'none'}}>Seller</a></p>
-                      {address === item.created_by
-                      ? (<p class="small">You</p>) 
-                      : (<p class="small">{item.seller.slice(0, 5) + '... ' + item.seller.slice(item.seller.length - 3, item.seller.length)}</p>)}
+                      <p class=""><a href="#!" class="text-muted" style={{ textDecoration: 'none'}}>Seller{item.username}</a></p>
+                      <NameSeller address={address} creator={item.created_by} seller={item.seller} /> 
                     </div>
         
                     <div class="d-flex justify-content-between mb-3">

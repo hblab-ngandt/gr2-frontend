@@ -1,6 +1,8 @@
 import { React } from "react";
+import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import 'react-toastify/dist/ReactToastify.css';
 
 import { marketplaceContract } from "../settings/Constant";
 
@@ -20,11 +22,20 @@ export default function CancelSellNft (props) {
           marketId: marketId,
         }
       );
+      toast.success('Cancel selling NFT successfully!', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000 // 5 seconds
+      });
       console.log(cancelNft.data);
-      navigate("/my-nft");
-      
+      setTimeout(() => {
+        navigate("/my-nft");
+      }, 5000);
     } catch (err) {
       console.log(err);
+      toast.error('Error while canceling this NFT on marketplaces', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 5000 // 5 seconds
+      });
     }
   };
 

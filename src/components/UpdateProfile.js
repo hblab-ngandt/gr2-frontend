@@ -1,6 +1,8 @@
 import { React, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 import axios from 'axios';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function UpdateProfile({user}) {
 
@@ -46,10 +48,23 @@ export default function UpdateProfile({user}) {
           },
         }
       );
-      navigate("/profile");
+      toast.success('Update profile successfully!', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 4000 // 5 seconds
+      });
+
+      setTimeout(() => {
+        navigate("/profile");
+      }, 5000);
+
       console.log(response.data);
+
     } catch (error) {
       console.log(error);
+      toast.error('Something went wrong. Please try again later', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 5000 // 5 seconds
+      });
     }
   }
 
