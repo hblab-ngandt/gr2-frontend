@@ -21,8 +21,13 @@ export default function BuyNft (props) {
     try {
       const hexPrice = ethers.utils.parseUnits(price.toString(), "ether");
       const amount = hexPrice.toString();
-      if (balance < price)
+      if (balance < price) {
+        toast.warning('You don\'t have enough money to buy this NFT', {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 2000
+        });
         return;
+      }
       else {
         let buyTx = await marketplaceContract.buyImageNFT(marketId, {
           value: (amount),
