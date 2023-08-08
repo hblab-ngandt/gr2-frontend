@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
 import { ethers } from "ethers";
 import axios from 'axios';
@@ -26,7 +26,10 @@ export default function NavBar(props) {
   const reloadPage = async () => {
     window.location.reload()
   }
-
+  useEffect(() => {
+    connectWallet();
+  }, []);
+  
   const connectWallet = async () => {
     try {
       const accounts = await provider.send("eth_requestAccounts", []);
@@ -56,7 +59,10 @@ export default function NavBar(props) {
     address: user.walletAddress,
     birthday: user.birthday,
     profile: user.profile,
-    token: wholeToken
+    token: wholeToken,
+    phone: user.phone,
+    about: user.about,
+    addressUser: user.address
   };
 
   return (

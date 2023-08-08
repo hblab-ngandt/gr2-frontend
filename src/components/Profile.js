@@ -47,8 +47,7 @@ export default function Profile({user}) {
                     height: 200,
                   }} />
                 <h5 class="my-3">{ userdata.username }</h5>
-                <p class="text-muted mb-1">Full Stack Developer</p>
-                <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
+                <p class="text-muted mb-1"> {userdata.about} </p>
               </div>
             </div>
           </div>
@@ -86,12 +85,20 @@ export default function Profile({user}) {
                     <p class="mb-0">Mobile</p>
                   </div>
                   <div class="col-sm-9">
-                    <p class="text-muted mb-0">(098) 765-4321</p>
+                    <p class="text-muted mb-0">{ userdata.phone }</p>
                   </div>
                 </div>
                 <div class="row py-2">
                   <div class="col-sm-3">
                     <p class="mb-0">Address</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p class="text-muted mb-0">{ userdata.address }</p>
+                  </div>
+                </div>
+                <div class="row py-2">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Address Wallet</p>
                   </div>
                   <div class="col-sm-9">
                     <p class="text-muted mb-0">

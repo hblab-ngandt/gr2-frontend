@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
+import { imageListClasses } from "@mui/material";
 
 export default function UpdateProfile({user}) {
 
@@ -10,6 +11,9 @@ export default function UpdateProfile({user}) {
   let profile = user.profile;
   let birthday = user.birthday;
   let name = user.name;
+  let phone = user.phone;
+  let about = user.about;
+  let addressUser = user.addressUser;
   const [demo, setDemo] = useState({ preview: "", raw: "" });
   const navigate = useNavigate();
 
@@ -17,6 +21,7 @@ export default function UpdateProfile({user}) {
   const currentDate = date.getDate();
   date.setDate(currentDate);
   const defaultValue = date.toLocaleDateString('en-CA');
+  const defaultAbout = 'Tell somthing about you';
 
   const token = localStorage.getItem('token');
   console.log(token);
@@ -36,7 +41,12 @@ export default function UpdateProfile({user}) {
     dataForm.append('walletAddress', address);
     dataForm.append('username', e.target.fullname.value);
     dataForm.append('birthday', e.target.birthday.value);
-    dataForm.append('images', demo.raw);
+    dataForm.append('about', e.target.about.value);
+    dataForm.append('phone', e.target.phone.value);
+    dataForm.append('address', e.target.address.value);
+    dataForm.append('images', demo.raw ? demo.raw : null);
+
+    console.log(demo.raw);
     try {
       const response = await axios.post(
         "http://localhost:8626/api/user/update",
@@ -95,6 +105,8 @@ export default function UpdateProfile({user}) {
                       onChange={handleChange}
                     />
                   </div>
+                  <div class="my-3 form-group"></div>
+                  <textarea class="form-control" id="about" rows="4" name="about" defaultValue={about ? about : defaultAbout}></textarea>
                 </div>
               </div>
             </div>
@@ -128,7 +140,15 @@ export default function UpdateProfile({user}) {
                       <p class="mb-0">Mobile</p>
                     </div>
                     <div class="col-sm-9">
-                      <p class="text-muted mb-0">(098) 765-4321</p>
+                    <input type="text" class="form-control" id="profile-phone" name="phone" placeholder={phone}/>
+                    </div>
+                  </div>
+                  <div class="row py-2">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Address</p>
+                    </div>
+                    <div class="col-sm-9">
+                    <input type="text" class="form-control" id="profile-address" name="address" placeholder={addressUser}/>
                     </div>
                   </div>
                   
