@@ -11,8 +11,7 @@ import Logo from '../assets/Logo.svg'
 import Footer from "./Footer";
 import Profile from "./Profile";
 import UpdateProfile from "./UpdateProfile";
-
-const provider = new ethers.providers.Web3Provider(window.ethereum);
+import Metamask from "./Metamask";
 
 
 export default function NavBar(props) {
@@ -22,12 +21,24 @@ export default function NavBar(props) {
   const [isConnected, setIsConnected] = useState(false);
   const [user, setUser] = useState([]);
   const [token, setToken] = useState();
+  const [haveMetamask, sethaveMetamask] = useState(true);
+  let provider = null;
 
   const reloadPage = async () => {
     window.location.reload()
   }
+  
   useEffect(() => {
-    connectWallet();
+    if (window.ethereum) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      if (haveMetamask || provider !== null) {
+        connectWallet();
+        return;
+      }
+    } else {
+      sethaveMetamask(false);
+    }
   }, []);
   
   const connectWallet = async () => {
@@ -47,6 +58,7 @@ export default function NavBar(props) {
         console.log(error);
       });
     } catch (err) {
+      console.log(err);
       setIsConnected(false);
     }
   };
@@ -64,54 +76,58 @@ export default function NavBar(props) {
     about: user.about,
     addressUser: user.address
   };
-
+  
   return (
     <>
-    <div class="bg-purple">
-      <div class="stars">
-        <div class="custom-navbar">
-          <div class="brand-logo">
-              <img src={Logo} width="100px" alt='navbar' onClick={() => reloadPage()} />
+    {haveMetamask ? (
+      <div class="bg-purple">
+        <div class="stars">
+          <div class="custom-navbar">
+            <div class="brand-logo">
+                <img src={Logo} width="100px" alt='navbar' onClick={() => reloadPage()} />
+            </div>
+            <Router>
+            <div class="navbar-links">
+              <ul>
+                <li><Link to={'/'} className='btn-request'>Home</Link></li>
+                <li><Link to={'/marketplaces'} >Marketplace</Link></li>
+                <li><Link to={'/my-nft'} >My NFT</Link></li>
+                { isConnected ? 
+                  (<li><Link to={'/profile'} >
+                    <img src={user.profile}
+                      className="rounded-circle mb-1"
+                      style={{borderRadius: '50%',
+                      width: 50,
+                      height: 50,
+                      display: "block"}}
+                      alt="avatar"
+                    />
+                    </Link>
+                  </li>
+                  )
+                : (<li><Link onClick={() => connectWallet()} to={'/'}>Connect Wallet</Link></li>)}
+              </ul>
+            </div>
+            <Routes>
+                <Route  path='/' element={<Home />} />
+                <Route  path='/my-nft' element={<MyNft address={accountAddress} />} />
+                <Route  path='/marketplaces' element={<Marketplace balance={balance} address={accountAddress} />} />
+                <Route  path='/profile' element={<Profile user={userdata} />} />
+                <Route path='/update' element={<UpdateProfile user={userdata} />} />
+              </Routes>
+            </Router>
           </div>
-          <Router>
-          <div class="navbar-links">
-            <ul>
-              <li><Link to={'/'} className='btn-request'>Home</Link></li>
-              <li><Link to={'/marketplaces'} >Marketplace</Link></li>
-              <li><Link to={'/my-nft'} >My NFT</Link></li>
-              { isConnected ? 
-                (<li><Link to={'/profile'} >
-                  <img src={user.profile}
-                    className="rounded-circle mb-1"
-                    style={{borderRadius: '50%',
-                    width: 50,
-                    height: 50,
-                    display: "block"}}
-                    alt="avatar"
-                  />
-                  </Link>
-                </li>
-                )
-              : (<li><Link onClick={() => connectWallet()} to={'/'}>Connect Wallet</Link></li>)}
-            </ul>
+          <div class="central-body">
           </div>
-          <Routes>
-              <Route  path='/' element={<Home />} />
-              <Route  path='/my-nft' element={<MyNft address={accountAddress} />} />
-              <Route  path='/marketplaces' element={<Marketplace balance={balance} address={accountAddress} />} />
-              <Route  path='/profile' element={<Profile user={userdata} />} />
-              <Route path='/update' element={<UpdateProfile user={userdata} />} />
-            </Routes>
-          </Router>
+          <div class="objects">
+            <img class="object_rocket" src="http://salehriaz.com/404Page/img/rocket.svg" width="40px" alt='navbar' />
+          </div>
         </div>
-        <div class="central-body">
-        </div>
-        <div class="objects">
-          <img class="object_rocket" src="http://salehriaz.com/404Page/img/rocket.svg" width="40px" alt='navbar' />
-        </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
+      ) : (
+        <Metamask />
+      )}
     </>
   );
 }

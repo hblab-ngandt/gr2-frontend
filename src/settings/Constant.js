@@ -14,23 +14,30 @@ const baseImage = "https://ngandt.infura-ipfs.io/ipfs/";
 
 const invalidAddress = "0x0000000000000000000000000000000000000000";
 
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-
 const nftAddress = REACT_APP_NFT_ADDRESS;
 const marketplaceAddress = REACT_APP_MARKETPLACE_ADDRESS;
 
-const signer = provider.getSigner();
+let provider = null;
+let signer = null;
+let nftContract = null;
+let marketplaceContract = null;
 
-const nftContract = new ethers.Contract(
-  nftAddress,
-  ImageToken.abi,
-  signer);
+if (window.ethereum) {
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  signer = provider.getSigner();
 
-const marketplaceContract = new ethers.Contract(
-  marketplaceAddress,
-  ImageMarketplace.abi,
-  signer
-);
+  nftContract = new ethers.Contract(
+    nftAddress,
+    ImageToken.abi,
+    signer
+  );
+
+  marketplaceContract = new ethers.Contract(
+    marketplaceAddress,
+    ImageMarketplace.abi,
+    signer
+  );
+} 
 
 const projectId = REACT_APP_IPFS_PROJECT_ID;
 const projectKey = REACT_APP_IPFS_PROJECT_KEY;
