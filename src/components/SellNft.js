@@ -21,6 +21,13 @@ export default function SellNft (props) {
 
   const sellNft = async () => {
     try {
+      if (!priceInHex || priceInHex.trim() === '') {
+        toast.warning('Please enter a price before selling', {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 2000
+        });
+        return;
+      }
       let price = ethers.utils.parseUnits(priceInHex, "ether");
       let marketTx = await marketplaceContract.listImageNFT(
         nftAddress,

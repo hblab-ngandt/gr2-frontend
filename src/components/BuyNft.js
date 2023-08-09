@@ -56,7 +56,7 @@ export default function BuyNft (props) {
       console.log(err);
       toast.error('Error while buying this NFT', {
         position: toast.POSITION.TOP_RIGHT,
-        autoClose: 5000 // 5 seconds
+        autoClose: 4000 // 5 seconds
       });
     }
   };

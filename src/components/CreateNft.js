@@ -39,6 +39,31 @@ export default function CreateNft (props) {
   // };
   const createNft = async (event) => {
     event.preventDefault();
+    
+    if (!demo.raw && name.trim() === '') {
+      toast.warning('Please choose an image and enter a name for the NFT', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 2000
+      });
+      return;
+    }
+
+    if (!demo.raw) {
+      toast.warning('You did not choose an image for the NFT', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 2000
+      });
+      return;
+    }
+
+    if (name.trim() === '') {
+      toast.warning('Please enter a name for the NFT', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 2000
+      });
+      return;
+    }
+  
     const dataForm = new FormData();
     dataForm.append('images', demo.raw);
     try {
